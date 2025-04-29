@@ -1,19 +1,18 @@
 import { Suspense, lazy } from "react";
 import { useRoutes, Routes, Route, Navigate } from "react-router-dom";
 import routes from "tempo-routes";
-import ProtectedRoute from "./components/auth/protectedroute";
-import { Toaster } from "sonner"; // ✅ ADD this!
+import ProtectedRoute from "@/components/auth/protectedroute";
+import { Toaster } from "sonner";
 
-// Lazy load components
-const Home = lazy(() => import("./components/home"));
-const SignIn = lazy(() => import("./components/auth/signin"));
-const SignUp = lazy(() => import("./components/auth/signup"));
-const Dashboard = lazy(() => import("./pages/dashboard"));
-const Settings = lazy(() => import("./pages/settings"));
-const OnboardingWizard = lazy(
-  () => import("./components/onboarding/onboardingwizard"),
-);
+// ✅ Lazy load all main pages
+const Home = lazy(() => import("@/components/home/home"));
+const SignIn = lazy(() => import("@/components/auth/signin"));
+const SignUp = lazy(() => import("@/components/auth/signup"));
+const Dashboard = lazy(() => import("@/pages/dashboard"));
+const Settings = lazy(() => import("@/pages/settings"));
+const OnboardingWizard = lazy(() => import("@/components/onboarding/onboardingwizard"));
 
+// ✅ Import legal pages normally
 import Terms from "@/components/legal/terms";
 import Privacy from "@/components/legal/privacy";
 import Contact from "@/components/legal/contact";
@@ -26,7 +25,6 @@ function App() {
       }
     >
       <>
-        {/* Toast Notifications */}
         <Toaster position="top-center" richColors closeButton />
 
         <Routes>
@@ -41,7 +39,7 @@ function App() {
           {/* Onboarding */}
           <Route path="/onboarding" element={<OnboardingWizard />} />
 
-          {/* Dashboard - Protected Routes */}
+          {/* Protected Routes */}
           <Route
             path="/dashboard"
             element={
@@ -62,13 +60,13 @@ function App() {
           {/* Redirect unknown routes */}
           <Route path="*" element={<Navigate to="/" replace />} />
 
-          {/* Tempo internal routes */}
+          {/* Internal Tempo-only routes */}
           {import.meta.env.VITE_TEMPO === "true" && (
             <Route path="/tempobook/*" />
           )}
         </Routes>
 
-        {/* Extra tempo-routes integration */}
+        {/* Optional: Use routes from Tempo storybook for previewing */}
         {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
       </>
     </Suspense>
