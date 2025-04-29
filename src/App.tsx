@@ -1,8 +1,9 @@
-import { Suspense, lazy } from "react";
-import { useRoutes, Routes, Route, Navigate } from "react-router-dom";
+import { Suspense, lazy, useEffect } from "react";
+import { useRoutes, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import routes from "tempo-routes";
 import ProtectedRoute from "@/components/auth/protectedroute";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/react";
 
 // ✅ Lazy load main components
 const Home = lazy(() => import("@/components/home/home"));
@@ -20,6 +21,19 @@ import Privacy from "@/components/legal/privacy";
 import Contact from "@/components/legal/contact";
 
 function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // ✅ Handle Supabase redirects on signup/magiclink
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const type = params.get("type");
+
+    if (type === "signup" || type === "magiclink") {
+      navigate("/onboarding");
+    }
+  }, [location, navigate]);
+
   return (
     <Suspense
       fallback={
@@ -70,6 +84,9 @@ function App() {
 
         {/* Optional: Enable Tempo preview routes */}
         {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
+
+        {/* ✅ Enable Vercel Analytics */}
+        <Analytics />
       </>
     </Suspense>
   );
