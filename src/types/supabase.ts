@@ -14,8 +14,7 @@ export interface Database {
           id: string;
           email: string;
           onboarding_complete: boolean;
-          weekly_budget: number | null; // ✅ added this line
-          // Add other fields as needed
+          weekly_budget: number | null; // ✅ Added for weekly_budget use
         };
         Insert: {
           id: string;
