@@ -35,7 +35,14 @@ const Privacy = () => {
 
           <p>
             You can request to delete your account and associated data anytime
-            by contacting us.
+            by contacting us at{" "}
+            <a
+              href="mailto:hello@gripfinances.com"
+              className="text-primary underline"
+            >
+              hello@gripfinances.com
+            </a>
+            .
           </p>
 
           <p>
@@ -48,6 +55,13 @@ const Privacy = () => {
             <Link to="/contact" className="text-primary underline">
               Contact us
             </Link>{" "}
+            or email{" "}
+            <a
+              href="mailto:hello@gripfinances.com"
+              className="text-primary underline"
+            >
+              hello@gripfinances.com
+            </a>{" "}
             anytime!
           </p>
         </div>

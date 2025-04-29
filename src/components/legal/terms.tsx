@@ -44,7 +44,14 @@ const Terms = () => {
             If you have any questions, please{" "}
             <Link to="/contact" className="text-primary underline">
               contact us
-            </Link>
+            </Link>{" "}
+            or email{" "}
+            <a
+              href="mailto:hello@gripfinances.com"
+              className="text-primary underline"
+            >
+              hello@gripfinances.com
+            </a>
             .
           </p>
         </div>
