@@ -1,11 +1,18 @@
 import { Suspense, lazy, useEffect } from "react";
-import { useRoutes, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import {
+  useRoutes,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import routes from "tempo-routes";
 import ProtectedRoute from "@/components/auth/protectedroute";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/react";
 
-// ✅ Lazy load main components
+// ✅ Lazy load components
 const Home = lazy(() => import("@/components/home/home"));
 const SignIn = lazy(() => import("@/components/auth/signin"));
 const SignUp = lazy(() => import("@/components/auth/signup"));
@@ -15,7 +22,7 @@ const OnboardingWizard = lazy(() =>
   import("@/components/onboarding/onboardingwizard")
 );
 
-// ✅ Static imports for legal pages
+// ✅ Static legal pages
 import Terms from "@/components/legal/terms";
 import Privacy from "@/components/legal/privacy";
 import Contact from "@/components/legal/contact";
@@ -24,10 +31,20 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ Handle Supabase redirects on signup/magiclink
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const type = params.get("type");
+    // Handle Supabase magic link/email signup redirects
+    // Converts #access_token to ?access_token for React Router
+    if (window.location.hash && !location.search) {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const type = hashParams.get("type");
+
+      if (type === "signup" || type === "magiclink") {
+        navigate("/onboarding");
+      }
+    }
+
+    const searchParams = new URLSearchParams(location.search);
+    const type = searchParams.get("type");
 
     if (type === "signup" || type === "magiclink") {
       navigate("/onboarding");
@@ -73,19 +90,19 @@ function App() {
             }
           />
 
-          {/* Fallback route */}
+          {/* Fallback for unknown routes */}
           <Route path="*" element={<Navigate to="/" replace />} />
 
-          {/* Optional: Tempo internal routes */}
+          {/* Tempo internal routes */}
           {import.meta.env.VITE_TEMPO === "true" && (
             <Route path="/tempobook/*" />
           )}
         </Routes>
 
-        {/* Optional: Enable Tempo preview routes */}
+        {/* Tempo preview routing support */}
         {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
 
-        {/* ✅ Enable Vercel Analytics */}
+        {/* Analytics */}
         <Analytics />
       </>
     </Suspense>
