@@ -4,8 +4,8 @@ import routes from "tempo-routes";
 import ProtectedRoute from "@/components/auth/protectedroute";
 import { Toaster } from "sonner";
 
-// ✅ Corrected lazy load components
-const Home = lazy(() => import("@/components/home/home")); // Correct lowercase "home"
+// ✅ Lazy load main components
+const Home = lazy(() => import("@/components/home/home"));
 const SignIn = lazy(() => import("@/components/auth/signin"));
 const SignUp = lazy(() => import("@/components/auth/signup"));
 const Dashboard = lazy(() => import("@/pages/dashboard"));
@@ -59,15 +59,16 @@ function App() {
             }
           />
 
-          {/* Redirect unknown routes */}
+          {/* Fallback route */}
           <Route path="*" element={<Navigate to="/" replace />} />
 
-          {/* Internal Tempo-only routes */}
+          {/* Optional: Tempo internal routes */}
           {import.meta.env.VITE_TEMPO === "true" && (
             <Route path="/tempobook/*" />
           )}
         </Routes>
 
+        {/* Optional: Enable Tempo preview routes */}
         {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
       </>
     </Suspense>
