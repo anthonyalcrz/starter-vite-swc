@@ -115,7 +115,6 @@ export default function SavingsStreak() {
         )}
       </div>
 
-      {/* Highlight the streak */}
       <div className="mt-4">
         <p className="text-sm text-gray-400 dark:text-gray-500">
           Best Weekly Save:{" "}
@@ -123,7 +122,6 @@ export default function SavingsStreak() {
         </p>
       </div>
 
-      {/* Best Streak Badge */}
       {bestStreak > 0 && (
         <div className="mt-6 p-4 rounded-md border-l-4 bg-green-100 border-green-500 shadow-sm">
           <p className="text-sm font-medium text-green-700 dark:text-green-500">

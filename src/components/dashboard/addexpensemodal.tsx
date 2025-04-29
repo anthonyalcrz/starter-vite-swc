@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button"; // ✅ Added Button import
 
 interface AddExpenseModalProps {
   isOpen: boolean;
@@ -10,7 +11,7 @@ interface AddExpenseModalProps {
     amount: number;
     date: string;
     time?: string;
-  }) => Promise<void>; // make onSave async
+  }) => Promise<void>;
   initialData?: { name: string; amount: number; date: string; time?: string };
 }
 

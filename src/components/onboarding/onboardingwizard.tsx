@@ -110,13 +110,32 @@ const OnboardingWizard = () => {
     setFormData((prev) => ({ ...prev, ...data }));
   };
 
+  const contentVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+  };
+
+  const progressVariants = {
+    initial: { width: 0 },
+    animate: (progress: number) => ({
+      width: `${progress}%`,
+      transition: { duration: 0.5, ease: "easeInOut" },
+    }),
+  };
+
+  const progressPercentage = (currentStep / (onboardingSteps.length - 1)) * 100;
+
   const renderCurrentStep = () => {
     const currentStepData = onboardingSteps[currentStep];
 
     switch (currentStepData.type) {
       case "welcome":
         return (
-          <WelcomeStep onNext={handleNext} contentVariants={contentVariants} />
+          <WelcomeStep
+            onNext={handleNext}
+            onSkip={() => {}} // ✅ Added missing onSkip
+            contentVariants={contentVariants}
+          />
         );
       case "profile":
         return (
@@ -160,21 +179,6 @@ const OnboardingWizard = () => {
         return null;
     }
   };
-
-  const contentVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-  };
-
-  const progressVariants = {
-    initial: { width: 0 },
-    animate: (progress: number) => ({
-      width: `${progress}%`,
-      transition: { duration: 0.5, ease: "easeInOut" },
-    }),
-  };
-
-  const progressPercentage = (currentStep / (onboardingSteps.length - 1)) * 100;
 
   if (isLoading) {
     return (

@@ -4,15 +4,17 @@ import routes from "tempo-routes";
 import ProtectedRoute from "@/components/auth/protectedroute";
 import { Toaster } from "sonner";
 
-// ✅ Lazy load all main pages
-const Home = lazy(() => import("@/components/home/home"));
+// ✅ Lazy load components using correct case + paths
+const Home = lazy(() => import("@/components/home/HomeSection")); // This is your homepage
 const SignIn = lazy(() => import("@/components/auth/signin"));
 const SignUp = lazy(() => import("@/components/auth/signup"));
 const Dashboard = lazy(() => import("@/pages/dashboard"));
 const Settings = lazy(() => import("@/pages/settings"));
-const OnboardingWizard = lazy(() => import("@/components/onboarding/onboardingwizard"));
+const OnboardingWizard = lazy(() =>
+  import("@/components/onboarding/onboardingwizard")
+);
 
-// ✅ Import legal pages normally
+// ✅ Import legal pages
 import Terms from "@/components/legal/terms";
 import Privacy from "@/components/legal/privacy";
 import Contact from "@/components/legal/contact";
@@ -57,7 +59,7 @@ function App() {
             }
           />
 
-          {/* Redirect unknown routes */}
+          {/* Redirect unknown paths */}
           <Route path="*" element={<Navigate to="/" replace />} />
 
           {/* Internal Tempo-only routes */}
@@ -66,7 +68,7 @@ function App() {
           )}
         </Routes>
 
-        {/* Optional: Use routes from Tempo storybook for previewing */}
+        {/* Optional: for Tempo preview system */}
         {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
       </>
     </Suspense>
