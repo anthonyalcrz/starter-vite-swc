@@ -32,8 +32,8 @@ function App() {
   const location = useLocation();
 
   useEffect(() => {
-    // Handle Supabase magic link/email signup redirects
-    // Converts #access_token to ?access_token for React Router
+    // Handle Supabase email/magic link redirects
+    // Convert hash (#) to search query for router
     if (window.location.hash && !location.search) {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const type = hashParams.get("type");
@@ -69,8 +69,15 @@ function App() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/contact" element={<Contact />} />
 
-          {/* Onboarding */}
-          <Route path="/onboarding" element={<OnboardingWizard />} />
+          {/* 🔒 Onboarding is now protected */}
+          <Route
+            path="/onboarding"
+            element={
+              <ProtectedRoute>
+                <OnboardingWizard />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Protected Routes */}
           <Route
@@ -90,19 +97,17 @@ function App() {
             }
           />
 
-          {/* Fallback for unknown routes */}
+          {/* Unknown route fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
 
-          {/* Tempo internal routes */}
+          {/* Tempo support (if enabled) */}
           {import.meta.env.VITE_TEMPO === "true" && (
             <Route path="/tempobook/*" />
           )}
         </Routes>
 
-        {/* Tempo preview routing support */}
         {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
 
-        {/* Analytics */}
         <Analytics />
       </>
     </Suspense>
