@@ -1,54 +1,50 @@
 import { useEffect, useState } from "react";
 import { createSupabaseClient } from "@/lib/createsupabaseclient";
+import { useUser } from "@supabase/auth-helpers-react";
 
-const supabase = createSupabaseClient(true);
-
-export type UserProfile = {
+export interface UserProfile {
   id: string;
   email: string;
   full_name?: string;
+  avatar_url?: string;
   onboarding_complete?: boolean;
-  role?: string;
   weekly_budget?: number;
-  savings_goal?: number;
-  savings_streak?: number;
-  best_streak?: number;
-  // Add more fields as needed
-};
+  role?: string;
+  created_at?: string;
+}
 
 export function useUserData() {
-  const [user, setUser] = useState<any>(null);
+  const supabase = createSupabaseClient(true);
+  const user = useUser();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getUser = async () => {
-      setLoading(true);
+    const fetchProfile = async () => {
+      if (!user) {
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
 
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
 
-      if (user && !error) {
-        setUser(user);
-
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-
-        if (profileData && !profileError) {
-          setProfile(profileData);
-        }
+      if (error) {
+        console.error("Failed to load user profile:", error.message);
+        setProfile(null);
+      } else {
+        setProfile(data);
       }
 
       setLoading(false);
     };
 
-    getUser();
-  }, []);
+    fetchProfile();
+  }, [user, supabase]);
 
   return { user, profile, loading };
 }
