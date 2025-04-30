@@ -1,37 +1,39 @@
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { useUserData } from "../hooks/useuserdata";
-import SignOutButton from "./auth/signoutbutton"; // ✅ Import SignOutButton properly
+import { useUserData } from "../hooks/useUserData";
+import SignOutButton from "./auth/signoutbutton"; // ✅ Proper import
 
 export default function NavBar() {
   const { profile } = useUserData();
 
-  // Calculate initials from full name
   const getInitials = () => {
     if (!profile?.full_name) return "US";
     const nameParts = profile.full_name.split(" ");
-    const firstInitial = nameParts[0] ? nameParts[0][0] : "";
-    const lastInitial =
-      nameParts.length > 1 ? nameParts[nameParts.length - 1][0] : "";
+    const firstInitial = nameParts[0]?.[0] || "";
+    const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1][0] : "";
     return (firstInitial + lastInitial).toUpperCase();
   };
 
   return (
     <nav className="flex justify-between items-center py-4 px-6 bg-white dark:bg-gray-800 shadow-sm transition-colors">
-      {/* Left side with Savvy mascot and logo */}
+      {/* Logo section */}
       <div className="flex items-center space-x-2">
-        <img
-          src="/savvy/savvy_excited_jumping.png"
-          alt="Savvy mascot"
-          className="h-10 w-10 object-contain"
-          aria-label="Savvy the Koala Mascot"
-        />
-        <span className="text-xl font-bold text-gray-900 dark:text-white">
-          Grip Finances
-        </span>
+        <Link to="/">
+          <img
+            src="/savvy/savvy_excited_jumping.png"
+            alt="Savvy mascot"
+            className="h-10 w-10 object-contain"
+            aria-label="Savvy the Koala Mascot"
+          />
+        </Link>
+        <Link to="/">
+          <span className="text-xl font-bold text-gray-900 dark:text-white hover:underline">
+            Grip Finances
+          </span>
+        </Link>
       </div>
 
-      {/* Right side with Avatar and Sign Out */}
+      {/* User info and logout */}
       <div className="flex items-center space-x-4">
         <Link to="/settings">
           <div className="relative">
@@ -45,8 +47,6 @@ export default function NavBar() {
             />
           </div>
         </Link>
-
-        {/* Subtle Sign Out Button */}
         <SignOutButton className="text-sm text-gray-500 hover:text-red-600 transition-colors" />
       </div>
     </nav>
