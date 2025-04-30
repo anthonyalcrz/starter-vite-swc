@@ -3,8 +3,8 @@ import react from "@vitejs/plugin-react-swc";
 import { tempo } from "tempo-devtools/dist/vite";
 import path from "path";
 
+// https://vitejs.dev/config/
 export default defineConfig({
-  base: "/", // Important for Vercel production deployment
   plugins: [
     react(),
     tempo({
@@ -17,7 +17,7 @@ export default defineConfig({
     },
   },
   server: {
-    // Allows all external access only when running inside Tempo
+    // @ts-ignore
     allowedHosts: process.env.TEMPO === "true" ? true : undefined,
   },
 });
