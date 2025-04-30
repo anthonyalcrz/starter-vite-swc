@@ -4,11 +4,5 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ],
-  "cron": [
-    {
-      "path": "/api/sendWeeklySummaryEmail",
-      "schedule": "0 13 * * 0"
-    }
   ]
 }
