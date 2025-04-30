@@ -4,6 +4,7 @@ import { tempo } from "tempo-devtools/dist/vite";
 import path from "path";
 
 export default defineConfig({
+  base: "/", // Important for Vercel production deployment
   plugins: [
     react(),
     tempo({
@@ -16,18 +17,7 @@ export default defineConfig({
     },
   },
   server: {
-    // @ts-ignore
+    // Allows all external access only when running inside Tempo
     allowedHosts: process.env.TEMPO === "true" ? true : undefined,
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: undefined, // Prevents chunk splitting warnings
-      },
-    },
-    chunkSizeWarningLimit: 1200, // Raises default chunk size warning threshold
-  },
-  define: {
-    "process.env": {}, // Compatibility for builds on Vercel
   },
 });
