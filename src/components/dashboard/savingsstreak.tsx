@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabaseclient";
+import { createSupabaseClient } from "@/lib/createsupabaseclient";
+const supabase = createSupabaseClient(true);
 import { useUserData } from "../../hooks/useuserdata";
 
 export default function SavingsStreak() {

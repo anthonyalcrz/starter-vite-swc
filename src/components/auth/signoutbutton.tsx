@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
-import { supabase } from "../../lib/supabaseclient";
+import { createSupabaseClient } from "@/lib/createsupabaseclient";
+const supabase = createSupabaseClient(true); // or false if not persisting
+
 
 interface SignOutButtonProps {
   className?: string;

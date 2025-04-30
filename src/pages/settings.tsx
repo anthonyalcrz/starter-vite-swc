@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { supabase } from "../lib/supabaseclient";
+import { createSupabaseClient } from "@/lib/createsupabaseclient";
+const supabase = createSupabaseClient(true); // or false if needed
 import NavBar from "../components/navbar";
 import { Button } from "../components/ui/button";
 import { ROUTES } from "../routes";

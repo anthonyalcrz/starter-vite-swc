@@ -9,4 +9,4 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error("Supabase URL and Anonymous Key must be provided.");
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey);

@@ -1,64 +1,68 @@
-// api/send-weekly-summary.ts
+import type { NextApiRequest, NextApiResponse } from "next";
+import { createClient } from "@supabase/supabase-js";
+import { Resend } from "resend";
 
-import { createClient } from '@supabase/supabase-js';
-import { NextResponse } from 'next/server'; // Required for Edge runtime
-
+// Initialize Supabase with service role key (server-only)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // NOTE: Must be secure
+  process.env.SUPABASE_SERVICE_ROLE_KEY! // 🔐 Must be server-side only
 );
 
-export const config = {
-  runtime: 'edge',
-};
+// Resend email client
+const resend = new Resend(process.env.RESEND_API_KEY!);
 
-export default async function handler() {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    // Fetch all users + their weekly budgets and spending
-    const { data: profiles, error } = await supabase
-      .from('profiles')
-      .select('id, email, weekly_budget');
+    const today = new Date();
+    const oneWeekAgo = new Date(today);
+    oneWeekAgo.setDate(today.getDate() - 7);
+
+    // Get all users with weekly budget
+    const { data: users, error } = await supabase
+      .from("profiles")
+      .select("id, email, full_name, weekly_budget, savings_streak, best_streak")
+      .neq("weekly_budget", null);
 
     if (error) throw error;
 
-    for (const user of profiles || []) {
-      // Get total spent this week for the user
-      const { data: expenses, error: expenseError } = await supabase
-        .from('expenses')
-        .select('amount, created_at')
-        .eq('user_id', user.id)
-        .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
+    for (const user of users || []) {
+      if (!user.email) continue;
 
-      if (expenseError) continue;
+      // Get this user's spending in the last 7 days
+      const { data: expenses, error: expErr } = await supabase
+        .from("expenses")
+        .select("amount, date")
+        .eq("user_id", user.id)
+        .gte("date", oneWeekAgo.toISOString());
 
-      const totalSpent = expenses?.reduce((acc, e) => acc + e.amount, 0) || 0;
-      const percentUsed = ((totalSpent / (user.weekly_budget || 1)) * 100).toFixed(0);
+      if (expErr) continue;
 
-      const subject = '🧠 Your Weekly Grip Summary';
-      const body = `
-        Hi there! Here's how your week went with Grip Finances:
+      const totalSpent = (expenses || []).reduce((sum, e) => sum + (e.amount ?? 0), 0);
+      const budget = user.weekly_budget ?? 0;
+      const percentUsed = budget > 0 ? Math.round((totalSpent / budget) * 100) : 0;
 
-        - Weekly Budget: $${user.weekly_budget || 0}
-        - Total Spent: $${totalSpent.toFixed(2)}
-        - Budget Used: ${percentUsed}%
-
-        Keep up the good work — or reel it in if needed 😉
-        
-        — Savvy & The Grip Team
-      `;
-
-      // Send email using Supabase built-in mailer
-      await supabase.functions.invoke('send-email', {
-        body: {
-          to: user.email,
-          subject,
-          text: body,
-        },
+      // Send email via Resend
+      await resend.emails.send({
+        from: "Savvy from Grip Finances <hello@gripfinances.com>",
+        to: user.email,
+        subject: "📊 Your Weekly Budget Summary",
+        html: `
+          <p>Hi ${user.full_name || "there"},</p>
+          <p>Here’s how you did this week:</p>
+          <ul>
+            <li><strong>Weekly Budget:</strong> $${budget.toFixed(2)}</li>
+            <li><strong>You Spent:</strong> $${totalSpent.toFixed(2)} (${percentUsed}%)</li>
+            <li><strong>Savings Streak:</strong> ${user.savings_streak ?? 0} weeks</li>
+            <li><strong>Best Streak:</strong> ${user.best_streak ?? 0} weeks</li>
+          </ul>
+          <p>Keep it up! 💪</p>
+        `,
       });
     }
 
-    return new NextResponse('Weekly summaries sent!', { status: 200 });
+    return res.status(200).json({ message: "Weekly summaries sent" });
   } catch (err: any) {
-    return new NextResponse(`Error: ${err.message}`, { status: 500 });
+    console.error("Error sending weekly summaries:", err.message);
+    return res.status(500).json({ error: err.message });
   }
 }
