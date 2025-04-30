@@ -70,7 +70,7 @@ const SignUp = () => {
       <header className="w-full p-4 border-b bg-background">
         <div className="container flex justify-center">
           <Link to="/" className="text-2xl font-bold text-primary">
-            Grip Finance
+            Grip Finances
           </Link>
         </div>
       </header>

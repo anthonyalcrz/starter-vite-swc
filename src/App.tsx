@@ -12,6 +12,7 @@ import ProtectedRoute from "@/components/auth/protectedroute";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/react";
 import LoadingScreen from "@/components/ui/LoadingScreen";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 
 // ✅ Lazy load pages
 const Home = lazy(() => import("@/components/home/home"));
@@ -26,13 +27,15 @@ const Terms = lazy(() => import("@/components/legal/terms"));
 const Privacy = lazy(() => import("@/components/legal/privacy"));
 const Contact = lazy(() => import("@/components/legal/contact"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
+const AdminDashboard = lazy(() => import("@/pages/admin"));
+const SavingsBeta = lazy(() => import("@/pages/savings-beta")); // ✅ new route
 
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { flags, loading: flagsLoading } = useFeatureFlags();
 
   useEffect(() => {
-    // Handle Supabase redirect hash (e.g. #access_token=...) as search params
     if (window.location.hash && !location.search) {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const type = hashParams.get("type");
@@ -41,7 +44,6 @@ function App() {
       }
     }
 
-    // Handle query string (e.g. ?type=signup)
     const searchParams = new URLSearchParams(location.search);
     const type = searchParams.get("type");
     if (type === "signup" || type === "magiclink") {
@@ -49,10 +51,10 @@ function App() {
     }
   }, [location, navigate]);
 
+  if (flagsLoading) return <LoadingScreen />;
+
   return (
-    <Suspense
-      fallback={<LoadingScreen />}
-    >
+    <Suspense fallback={<LoadingScreen />}>
       <>
         <Toaster position="top-center" richColors closeButton />
 
@@ -90,6 +92,26 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute role="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* 🚩 Conditionally expose BETA Savings route */}
+          {flags.enable_savings_v2 && (
+            <Route
+              path="/savings"
+              element={
+                <ProtectedRoute>
+                  <SavingsBeta />
+                </ProtectedRoute>
+              }
+            />
+          )}
 
           {/* Catch-all 404 route */}
           <Route path="*" element={<NotFound />} />
@@ -100,10 +122,8 @@ function App() {
           )}
         </Routes>
 
-        {/* Storybook-style Tempo preview support */}
         {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
 
-        {/* Vercel Analytics */}
         <Analytics />
       </>
     </Suspense>

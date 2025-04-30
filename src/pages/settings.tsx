@@ -6,7 +6,6 @@ import { Button } from "../components/ui/button";
 import { ROUTES } from "../routes";
 import SignOutButton from "../components/auth/signoutbutton";
 import PasswordChangeForm from "../components/auth/passwordchangeform";
-import ToggleDarkMode from "../components/auth/toggledarkmode";
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -93,7 +92,26 @@ export default function Settings() {
 
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold dark:text-white">Settings</h1>
-          <ToggleDarkMode />
+          {/* Dark Mode - Disabled */}
+          <div className="flex items-center justify-between border p-3 px-4 rounded-md bg-muted w-fit">
+            <span className="text-sm font-medium">Dark Mode</span>
+            <span className="text-xs italic text-muted-foreground ml-3">
+              Coming soon
+            </span>
+          </div>
+        </div>
+
+        {/* Save Changes Button - Moved up here */}
+        <div className="flex flex-col items-end space-y-2">
+          {saveStatus === "success" && (
+            <p className="text-green-600 text-sm">
+              Changes saved successfully!
+            </p>
+          )}
+          {saveStatus === "error" && (
+            <p className="text-red-600 text-sm">Failed to save changes.</p>
+          )}
+          <Button onClick={handleSave}>Save Changes</Button>
         </div>
 
         {/* Personal Info */}
@@ -170,19 +188,6 @@ export default function Settings() {
           <div className="mt-6 flex justify-end">
             <SignOutButton />
           </div>
-        </div>
-
-        {/* Save Changes Button */}
-        <div className="flex flex-col items-end space-y-2">
-          {saveStatus === "success" && (
-            <p className="text-green-600 text-sm">
-              Changes saved successfully!
-            </p>
-          )}
-          {saveStatus === "error" && (
-            <p className="text-red-600 text-sm">Failed to save changes.</p>
-          )}
-          <Button onClick={handleSave}>Save Changes</Button>
         </div>
       </main>
     </div>

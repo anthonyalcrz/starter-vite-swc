@@ -74,7 +74,7 @@ const Contact = () => {
                 : "/savvy/savvy_waiving3transp.png"
             }
             alt="Savvy"
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover"
           />
         </div>
       </div>
