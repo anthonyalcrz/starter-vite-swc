@@ -1,8 +1,13 @@
 {
-  "rewrites": [
+  "functions": {
+    "api/send-weekly-summary.ts": {
+      "runtime": "edge"
+    }
+  },
+  "crons": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "path": "/api/send-weekly-summary",
+      "schedule": "0 13 * * 0"
     }
   ]
 }
