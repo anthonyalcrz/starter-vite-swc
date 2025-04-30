@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { createSupabaseClient } from "@/lib/createsupabaseclient";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import NavBar from "@/components/navbar";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -28,13 +29,19 @@ export default function SignIn() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("onboarding_complete")
         .eq("id", user.id)
         .single();
 
-      if (profile?.onboarding_complete === false) {
+      if (profileError || !profile) {
+        console.error("Profile fetch failed:", profileError);
+        setErrorMsg("Account issue. Try again.");
+        return;
+      }
+
+      if (profile.onboarding_complete === false) {
         navigate("/onboarding");
       } else {
         navigate("/dashboard");
@@ -43,64 +50,67 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="max-w-md w-full space-y-6 bg-white dark:bg-gray-800 rounded-lg p-8 shadow">
-        <h1 className="text-2xl font-bold text-center">
-          Sign In to Grip Finances
-        </h1>
+    <>
+      <NavBar />
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="max-w-md w-full space-y-6 bg-white dark:bg-gray-800 rounded-lg p-8 shadow">
+          <h1 className="text-2xl font-bold text-center">
+            Sign In to Grip Finances
+          </h1>
 
-        <form onSubmit={handleSignIn} className="space-y-4">
-          <div>
-            <label className="text-sm font-medium block mb-1">Email</label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium block mb-1">Password</label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
+          <form onSubmit={handleSignIn} className="space-y-4">
+            <div>
+              <label className="text-sm font-medium block mb-1">Email</label>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
-              Remember me
-            </label>
-            <Link
-              to="/forgot-password"
-              className="text-sm text-primary underline"
-            >
-              Forgot Password?
+            </div>
+
+            <div>
+              <label className="text-sm font-medium block mb-1">Password</label>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                Remember me
+              </label>
+              <Link
+                to="/forgot-password"
+                className="text-sm text-primary underline"
+              >
+                Forgot Password?
+              </Link>
+            </div>
+
+            {errorMsg && <p className="text-red-600 text-sm">{errorMsg}</p>}
+
+            <Button type="submit" className="w-full">
+              Sign In
+            </Button>
+          </form>
+
+          <p className="text-sm text-center text-muted-foreground">
+            Don't have an account?{" "}
+            <Link to="/signup" className="text-primary underline">
+              Sign up
             </Link>
-          </div>
-
-          {errorMsg && <p className="text-red-600 text-sm">{errorMsg}</p>}
-
-          <Button type="submit" className="w-full">
-            Sign In
-          </Button>
-        </form>
-
-        <p className="text-sm text-center text-muted-foreground">
-          Don't have an account?{" "}
-          <Link to="/signup" className="text-primary underline">
-            Sign up
-          </Link>
-        </p>
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
