@@ -11,7 +11,7 @@ import { createClient } from "@supabase/supabase-js";
 // Setup Supabase client
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
 const Contact = () => {
@@ -21,7 +21,7 @@ const Contact = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setForm({ ...form, [e.target.id]: e.target.value });
   };
@@ -70,7 +70,7 @@ const Contact = () => {
           <img
             src={
               submitted
-                ? "/savvy/savvy_leaning_looking_righttransp.png"
+                ? "/savvy/savvy_excited.png"
                 : "/savvy/savvy_waiving3transp.png"
             }
             alt="Savvy"
@@ -90,11 +90,10 @@ const Contact = () => {
           {submitted ? (
             <div className="text-center text-muted-foreground space-y-4">
               <p>
-                We've received your message. Our support team will be in touch
-                shortly!
+                We've received your message. Savvy and the team will reply within 24 hours.
               </p>
               <p>
-                In the meantime, feel free to keep exploring Grip Finance 🚀
+                In the meantime, feel free to keep exploring Grip Finances 🚀
               </p>
             </div>
           ) : (

@@ -27,7 +27,7 @@ export default function NavBar() {
           aria-label="Savvy the Koala Mascot"
         />
         <span className="text-xl font-bold text-gray-900 dark:text-white">
-          Grip
+          Grip Finances
         </span>
       </div>
 

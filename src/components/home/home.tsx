@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { createClient } from "@supabase/supabase-js";
-import { Button } from "@/components/ui/button"; // Fixed path for UI components
+import { Button } from "@/components/ui/button";
 
 import HeroSection from "@/components/home/HeroSection";
 import FeatureHighlights from "@/components/home/FeatureHighlights";
@@ -60,7 +60,7 @@ const Home = () => {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-2xl font-bold">Grip Finance</span>
+            <span className="text-2xl font-bold">Grip Finances</span>
             <img
               src="/savvy/savvy_sitting_smilingtransp.png"
               alt="Savvy"
@@ -142,7 +142,7 @@ const Home = () => {
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl">
               Join thousands of users who have transformed their financial
-              habits with Grip Finance.
+              habits with Grip Finances.
             </p>
             <Button asChild size="lg" className="px-8">
               <Link to="/signup">Get Started</Link>
@@ -155,7 +155,7 @@ const Home = () => {
       <footer className="w-full border-t py-6 md:py-0">
         <div className="container flex flex-col md:flex-row md:h-24 items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-semibold">Grip Finance</span>
+            <span className="font-semibold">Grip Finances</span>
             <img
               src="/savvy/savvy_default.png"
               alt="Savvy"

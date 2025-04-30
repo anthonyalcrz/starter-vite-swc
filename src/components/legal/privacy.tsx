@@ -9,33 +9,34 @@ const Privacy = () => {
       <header className="w-full p-4 border-b bg-background">
         <div className="container flex justify-center">
           <Link to="/" className="text-2xl font-bold text-primary">
-            Grip Finance
+            Grip Finances
           </Link>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="flex-1 container py-10 max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
+        <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
+        <p className="text-sm text-muted-foreground mb-6">
+          Last updated: April 29, 2025
+        </p>
         <div className="space-y-6 text-gray-700">
           <p>
-            Grip Finance values your privacy. We only collect information
-            necessary to provide our budgeting services.
+            Grip Finances values your privacy. We collect only the information
+            necessary to provide our budgeting tools and improve user experience.
           </p>
 
           <p>
-            Your personal data (such as email and budget preferences) is
-            securely stored. We do not sell your information to third parties.
+            Your data (such as email, profile preferences, and budget activity)
+            is stored securely. We never sell your data to third parties.
           </p>
 
           <p>
-            When connecting financial accounts, we use third-party services
-            (like Plaid) with industry-standard encryption.
+            We use trusted third-party services like Supabase (for authentication and storage), Vercel (hosting), and optionally Plaid (for bank connections).
           </p>
 
           <p>
-            You can request to delete your account and associated data anytime
-            by contacting us at{" "}
+            You may request to view, modify, or delete your personal data by emailing{" "}
             <a
               href="mailto:hello@gripfinances.com"
               className="text-primary underline"
@@ -46,8 +47,11 @@ const Privacy = () => {
           </p>
 
           <p>
-            This policy may be updated occasionally. We'll notify you of major
-            changes.
+            By creating an account, you consent to receiving transactional and onboarding emails. You may opt out of non-essential messages anytime.
+          </p>
+
+          <p>
+            Grip Finances complies with applicable data laws such as GDPR and CCPA. You must be at least 13 years old to use the app.
           </p>
 
           <p>
@@ -61,8 +65,8 @@ const Privacy = () => {
               className="text-primary underline"
             >
               hello@gripfinances.com
-            </a>{" "}
-            anytime!
+            </a>
+            .
           </p>
         </div>
 
