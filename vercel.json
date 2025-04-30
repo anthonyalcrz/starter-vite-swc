@@ -4,5 +4,11 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
+  ],
+  "cron": [
+    {
+      "path": "/api/sendWeeklySummaryEmail",
+      "schedule": "0 13 * * 0"  // Every Sunday at 1pm UTC
+    }
   ]
 }

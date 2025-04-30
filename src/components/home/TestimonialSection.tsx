@@ -20,7 +20,7 @@ const testimonials = [
     quote:
       "The recurring expense tracker has saved me from late fees multiple times. This app pays for itself!",
     author: "Michael Torres",
-    role: "Software Engineer",
+    role: "SDSU Student",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael",
   },
 ];

@@ -24,8 +24,20 @@ export default function SignIn() {
       console.error(error.message);
       setErrorMsg("Invalid email or password.");
     } else {
-      navigate("/dashboard");
-    }
+      const { data: { user } } = await supabase.auth.getUser();
+    
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("onboarding_complete")
+        .eq("id", user.id)
+        .single();
+    
+      if (profile?.onboarding_complete === false) {
+        navigate("/onboarding");
+      } else {
+        navigate("/dashboard");
+      }
+    }    
   };
 
   return (
