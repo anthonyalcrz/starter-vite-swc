@@ -1,138 +1,99 @@
-import { useState, useEffect } from "react";
-import { supabase } from "../../lib/supabaseclient";
-import { Button } from "../ui/button";
-import { AnimatePresence, motion } from "framer-motion";
-import { toast } from "sonner";
+import { useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/lib/supabaseclient";
 
 interface TutorialModalProps {
   userId: string | null;
 }
 
+const steps = [
+  {
+    title: "Welcome to your Dashboard 🎉",
+    description: "Let’s take a quick tour of how widgets help you stay on top of your budget.",
+  },
+  {
+    title: "Weekly Budget",
+    description: "This widget shows how much you’ve spent this week compared to your budget.",
+  },
+  {
+    title: "Savings Streak",
+    description: "Track how many weeks in a row you’ve stayed within budget. Keep your streak alive!",
+  },
+  {
+    title: "Weekly Summary",
+    description: "Every week, we’ll summarize your activity and highlight trends that matter.",
+  },
+];
+
 export default function TutorialModal({ userId }: TutorialModalProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoadingUser, setIsLoadingUser] = useState(true);
-  const [completingTutorial, setCompletingTutorial] = useState(false);
+  const [show, setShow] = useState(false);
+  const [step, setStep] = useState(0);
 
   useEffect(() => {
-    const checkTutorialStatus = async () => {
+    const checkTourStatus = async () => {
       if (!userId) return;
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("tutorial_complete")
+        .select("dashboard_tour_seen")
         .eq("id", userId)
         .single();
 
-      if (error) {
-        console.error("Error checking tutorial status:", error.message);
-        setIsLoadingUser(false);
-        return;
+      if (!error && data && data.dashboard_tour_seen === false) {
+        setShow(true);
       }
-
-      if (data && !data.tutorial_complete) {
-        setIsOpen(true);
-      }
-
-      setIsLoadingUser(false);
     };
 
-    checkTutorialStatus();
+    checkTourStatus();
   }, [userId]);
 
-  const handleCompleteTutorial = async () => {
-    if (!userId) return;
+  const handleClose = async () => {
+    setShow(false);
 
-    setCompletingTutorial(true);
-
-    const { error } = await supabase
-      .from("profiles")
-      .update({ tutorial_complete: true })
-      .eq("id", userId);
-
-    if (error) {
-      console.error("Error updating tutorial status:", error.message);
-      toast.error("Failed to save tutorial completion.");
-    } else {
-      toast.success("Tutorial completed! 🎉");
+    if (userId) {
+      await supabase
+        .from("profiles")
+        .update({ dashboard_tour_seen: true })
+        .eq("id", userId);
     }
-
-    setIsOpen(false);
-    setCompletingTutorial(false);
   };
 
-  if (isLoadingUser) return null; // 🛡️ Don't render anything while checking user status
+  const handleNext = () => {
+    if (step < steps.length - 1) {
+      setStep(step + 1);
+    } else {
+      handleClose();
+    }
+  };
+
+  const handleBack = () => {
+    if (step > 0) {
+      setStep(step - 1);
+    }
+  };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <motion.div
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 w-full max-w-lg space-y-6"
-            initial={{ y: 40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 40, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 24 }}
-          >
-            <h2 className="text-2xl font-bold text-center dark:text-white">
-              Welcome to Grip Dashboard!
-            </h2>
+    <Dialog open={show}>
+      <DialogContent className="max-w-md text-center space-y-4">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold">{steps[step].title}</DialogTitle>
+        </DialogHeader>
+        <p className="text-muted-foreground text-sm">{steps[step].description}</p>
 
-            <p className="text-gray-600 dark:text-gray-300 text-center text-sm">
-              Here's a quick walkthrough to help you track expenses, smash your
-              goals, and stay on budget!
-            </p>
+        <div className="flex justify-between mt-6">
+          <Button variant="ghost" disabled={step === 0} onClick={handleBack}>
+            Back
+          </Button>
+          <Button onClick={handleNext}>
+            {step === steps.length - 1 ? "Finish" : "Next"}
+          </Button>
+        </div>
 
-            <div className="space-y-4 text-sm">
-              <div className="flex items-start gap-2">
-                <span>✅</span>
-                <span>Track daily expenses easily in your Weekly Budget.</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span>🎯</span>
-                <span>
-                  Stay motivated by hitting your Monthly Savings Goals!
-                </span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span>📅</span>
-                <span>
-                  Use the Monthly Calendar to monitor your budget health.
-                </span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span>🔁</span>
-                <span>
-                  Manage recurring bills like rent, subscriptions, and more.
-                </span>
-              </div>
-            </div>
-
-            {/* Buttons */}
-            <div className="flex justify-end space-x-3 pt-4">
-              <Button
-                variant="ghost"
-                className="text-sm"
-                onClick={handleCompleteTutorial}
-                disabled={completingTutorial}
-              >
-                {completingTutorial ? "Finishing..." : "Skip"}
-              </Button>
-              <Button
-                className="text-sm"
-                onClick={handleCompleteTutorial}
-                disabled={completingTutorial}
-              >
-                {completingTutorial ? "Finishing..." : "Let's Go!"}
-              </Button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        <p className="text-xs text-muted-foreground mt-2">
+          Step {step + 1} of {steps.length}
+        </p>
+      </DialogContent>
+    </Dialog>
   );
 }

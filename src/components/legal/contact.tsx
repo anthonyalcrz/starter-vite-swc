@@ -1,5 +1,3 @@
-// src/components/legal/Contact.tsx
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,8 +8,8 @@ import { createClient } from "@supabase/supabase-js";
 
 // Setup Supabase client
 const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
+  import.meta.env.VITE_SUPABASE_URL!,
+  import.meta.env.VITE_SUPABASE_ANON_KEY!
 );
 
 const Contact = () => {
@@ -66,7 +64,7 @@ const Contact = () => {
 
       {/* Hero Image */}
       <div className="flex justify-center mb-8">
-        <div className="w-40 h-40 rounded-full bg-blue-50 flex items-center justify-center overflow-hidden p-4">
+        <div className="w-40 h-40 rounded-full bg-blue-50 overflow-hidden">
           <img
             src={
               submitted

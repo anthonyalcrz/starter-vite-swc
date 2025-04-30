@@ -6,26 +6,39 @@ import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { flags, loading: flagsLoading } = useFeatureFlags();
 
   useEffect(() => {
-    fetchUsers();
+    fetchAll();
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchAll = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+
+    const { data: usersData } = await supabase
       .from("profiles")
       .select("id, full_name, email, role, onboarding_complete, created_at");
 
-    if (error) {
-      console.error(error.message);
-      return;
-    }
+    const { data: messagesData } = await supabase
+      .from("contact_messages")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-    setUsers(data || []);
+    setUsers(usersData || []);
+    setMessages(messagesData || []);
     setLoading(false);
+  };
+
+  const unreadCount = messages.filter((m) => !m.read).length;
+
+  const markMessageRead = async (id: number) => {
+    await supabase
+      .from("contact_messages")
+      .update({ read: true })
+      .eq("id", id);
+    fetchAll();
   };
 
   const resetOnboarding = async (userId: string) => {
@@ -33,8 +46,7 @@ const AdminDashboard = () => {
       .from("profiles")
       .update({ onboarding_complete: false })
       .eq("id", userId);
-
-    fetchUsers();
+    fetchAll();
   };
 
   const promoteToAdmin = async (userId: string) => {
@@ -42,8 +54,7 @@ const AdminDashboard = () => {
       .from("profiles")
       .update({ role: "admin" })
       .eq("id", userId);
-
-    fetchUsers();
+    fetchAll();
   };
 
   const toggleFlag = async (key: string, enabled: boolean) => {
@@ -51,15 +62,55 @@ const AdminDashboard = () => {
       .from("feature_flags")
       .update({ enabled: !enabled })
       .eq("flag_key", key);
+    fetchAll();
   };
 
   return (
     <div className="min-h-screen p-6 space-y-10">
       <h1 className="text-3xl font-bold mb-4">Admin Dashboard</h1>
 
+      {/* 🔔 Unread Contact Messages Alert */}
+      {unreadCount > 0 && (
+        <div className="bg-yellow-100 border border-yellow-300 p-4 rounded-md text-sm font-medium text-yellow-800">
+          📬 You have {unreadCount} unread contact message
+          {unreadCount > 1 ? "s" : ""}.
+        </div>
+      )}
+
+      {/* 📥 CONTACT MESSAGES */}
+      <section>
+        <h2 className="text-xl font-semibold mt-8 mb-2">Feedback Inbox</h2>
+        <div className="space-y-4">
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`p-4 rounded-lg border ${
+                msg.read ? "bg-muted" : "bg-white"
+              }`}
+            >
+              <div className="flex justify-between items-center mb-2">
+                <div>
+                  <p className="text-sm font-semibold">{msg.name}</p>
+                  <p className="text-xs text-muted-foreground">{msg.email}</p>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {new Date(msg.created_at).toLocaleString()}
+                </p>
+              </div>
+              <p className="text-sm mb-3">{msg.message}</p>
+              {!msg.read && (
+                <Button size="sm" onClick={() => markMessageRead(msg.id)}>
+                  Mark as Read
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* 👥 USER LIST */}
       <section>
-        <h2 className="text-xl font-semibold mb-2">Live User List</h2>
+        <h2 className="text-xl font-semibold mt-12 mb-2">Live User List</h2>
         {loading ? (
           <p className="text-muted-foreground">Loading users...</p>
         ) : (
