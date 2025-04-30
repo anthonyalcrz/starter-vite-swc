@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createSupabaseClient } from "@/lib/createsupabaseclient";
-const supabase = createSupabaseClient(true); // or false if needed
+const supabase = createSupabaseClient();
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { supabase } from "../lib/supabaseclient";
+import { createSupabaseClient } from "@/lib/createsupabaseclient";
+const supabase = createSupabaseClient();
 import { useUser } from "@supabase/auth-helpers-react";
 import NavBar from "../components/navbar";
 import WeeklyBudget from "../components/dashboard/weeklybudget";
