@@ -1,18 +1,19 @@
 import { Suspense, lazy, useEffect } from "react";
 import {
-  useRoutes,
   Routes,
   Route,
   Navigate,
   useNavigate,
   useLocation,
+  useRoutes,
 } from "react-router-dom";
 import routes from "tempo-routes";
 import ProtectedRoute from "@/components/auth/protectedroute";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/react";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
-// ✅ Lazy load components
+// ✅ Lazy load pages
 const Home = lazy(() => import("@/components/home/home"));
 const SignIn = lazy(() => import("@/components/auth/signin"));
 const SignUp = lazy(() => import("@/components/auth/signup"));
@@ -21,31 +22,28 @@ const Settings = lazy(() => import("@/pages/settings"));
 const OnboardingWizard = lazy(() =>
   import("@/components/onboarding/onboardingwizard")
 );
-
-// ✅ Static legal pages
-import Terms from "@/components/legal/terms";
-import Privacy from "@/components/legal/privacy";
-import Contact from "@/components/legal/contact";
+const Terms = lazy(() => import("@/components/legal/terms"));
+const Privacy = lazy(() => import("@/components/legal/privacy"));
+const Contact = lazy(() => import("@/components/legal/contact"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
 
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // Handle Supabase email/magic link redirects
-    // Convert hash (#) to search query for router
+    // Handle Supabase redirect hash (e.g. #access_token=...) as search params
     if (window.location.hash && !location.search) {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const type = hashParams.get("type");
-
       if (type === "signup" || type === "magiclink") {
         navigate("/onboarding");
       }
     }
 
+    // Handle query string (e.g. ?type=signup)
     const searchParams = new URLSearchParams(location.search);
     const type = searchParams.get("type");
-
     if (type === "signup" || type === "magiclink") {
       navigate("/onboarding");
     }
@@ -53,9 +51,7 @@ function App() {
 
   return (
     <Suspense
-      fallback={
-        <p className="flex items-center justify-center h-screen">Loading...</p>
-      }
+      fallback={<LoadingScreen />}
     >
       <>
         <Toaster position="top-center" richColors closeButton />
@@ -69,7 +65,7 @@ function App() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/contact" element={<Contact />} />
 
-          {/* 🔒 Onboarding is now protected */}
+          {/* Protected Routes */}
           <Route
             path="/onboarding"
             element={
@@ -78,8 +74,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          {/* Protected Routes */}
           <Route
             path="/dashboard"
             element={
@@ -97,17 +91,19 @@ function App() {
             }
           />
 
-          {/* Unknown route fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Catch-all 404 route */}
+          <Route path="*" element={<NotFound />} />
 
-          {/* Tempo support (if enabled) */}
+          {/* Tempo-specific routing */}
           {import.meta.env.VITE_TEMPO === "true" && (
             <Route path="/tempobook/*" />
           )}
         </Routes>
 
+        {/* Storybook-style Tempo preview support */}
         {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
 
+        {/* Vercel Analytics */}
         <Analytics />
       </>
     </Suspense>
