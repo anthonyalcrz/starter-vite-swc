@@ -12,7 +12,6 @@ export default function LoadingScreen() {
   const [currentMessage, setCurrentMessage] = useState("");
 
   useEffect(() => {
-    // Pick a random tip when component mounts
     const randomTip = messages[Math.floor(Math.random() * messages.length)];
     setCurrentMessage(randomTip);
   }, []);
@@ -35,11 +34,7 @@ export default function LoadingScreen() {
       <p className="text-muted-foreground text-base">{currentMessage}</p>
 
       {/* Animation Styles */}
-      <style jsx>{`
-        .animate-bounce-slow {
-          animation: bounce 1.6s ease-in-out infinite;
-        }
-
+      <style>{`
         @keyframes bounce {
           0%, 100% {
             transform: translateY(0);
@@ -49,11 +44,6 @@ export default function LoadingScreen() {
           }
         }
 
-        .animate-progress-bar {
-          width: 100%;
-          animation: progress 2s linear infinite;
-        }
-
         @keyframes progress {
           0% {
             transform: translateX(-100%);
@@ -61,6 +51,15 @@ export default function LoadingScreen() {
           100% {
             transform: translateX(100%);
           }
+        }
+
+        .animate-bounce-slow {
+          animation: bounce 1.6s ease-in-out infinite;
+        }
+
+        .animate-progress-bar {
+          width: 100%;
+          animation: progress 2s linear infinite;
         }
       `}</style>
     </div>

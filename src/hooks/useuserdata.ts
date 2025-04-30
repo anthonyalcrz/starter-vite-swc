@@ -1,68 +1,54 @@
-import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { useEffect, useState } from "react";
+import { createSupabaseClient } from "@/lib/createsupabaseclient";
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL as string,
-  import.meta.env.VITE_SUPABASE_ANON_KEY as string,
-);
+const supabase = createSupabaseClient(true);
 
-interface UserProfile {
+export type UserProfile = {
   id: string;
   email: string;
-  full_name: string | null;
-  first_name: string | null;
-  avatar_url: string | null;
-  created_at: string;
-}
+  full_name?: string;
+  onboarding_complete?: boolean;
+  role?: string;
+  weekly_budget?: number;
+  savings_goal?: number;
+  savings_streak?: number;
+  best_streak?: number;
+  // Add more fields as needed
+};
 
 export function useUserData() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    async function fetchUserData() {
-      try {
-        setLoading(true);
+    const getUser = async () => {
+      setLoading(true);
 
-        // Get the current user
-        const {
-          data: { user: currentUser },
-          error: userError,
-        } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
 
-        if (userError) throw userError;
-        if (!currentUser) {
-          setLoading(false);
-          return;
-        }
+      if (user && !error) {
+        setUser(user);
 
-        setUser(currentUser);
-
-        // Get the user's profile
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select("*")
-          .eq("id", currentUser.id)
+          .eq("id", user.id)
           .single();
 
-        if (profileError && profileError.code !== "PGRST116") {
-          // PGRST116 is the error code for no rows returned
-          throw profileError;
+        if (profileData && !profileError) {
+          setProfile(profileData);
         }
-
-        setProfile(profileData as UserProfile);
-      } catch (err: any) {
-        setError(err);
-        console.error("Error fetching user data:", err);
-      } finally {
-        setLoading(false);
       }
-    }
 
-    fetchUserData();
+      setLoading(false);
+    };
+
+    getUser();
   }, []);
 
-  return { user, profile, loading, error };
+  return { user, profile, loading };
 }

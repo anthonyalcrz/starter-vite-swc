@@ -1,30 +1,29 @@
 import { useEffect, useState } from "react";
 import { createSupabaseClient } from "@/lib/createsupabaseclient";
-const supabase = createSupabaseClient();
 
-
-type FeatureFlags = Record<string, boolean>;
+const supabase = createSupabaseClient(true);
 
 export function useFeatureFlags() {
-  const [flags, setFlags] = useState<FeatureFlags>({});
+  const [flags, setFlags] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchFlags() {
-      const { data, error } = await supabase.from("feature_flags").select("*");
-      if (error) {
-        console.error("Failed to fetch feature flags:", error);
-        return;
+    const fetchFlags = async () => {
+      setLoading(true);
+
+      const { data, error } = await supabase
+        .from("feature_flags")
+        .select("flag_key, enabled");
+
+      if (!error && data) {
+        const mapped = Object.fromEntries(
+          data.map((f) => [f.flag_key, f.enabled])
+        );
+        setFlags(mapped);
       }
 
-      const mapped: FeatureFlags = {};
-      for (const flag of data) {
-        mapped[flag.flag_key] = flag.enabled;
-      }
-
-      setFlags(mapped);
       setLoading(false);
-    }
+    };
 
     fetchFlags();
   }, []);

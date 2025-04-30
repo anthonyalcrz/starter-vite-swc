@@ -13,10 +13,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY,
-);
+const supabase = createSupabaseClient(true);
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -48,9 +45,7 @@ const SignUp = () => {
         },
       });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       setSuccess(true);
     } catch (error: any) {
@@ -66,7 +61,6 @@ const SignUp = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Top header with logo */}
       <header className="w-full p-4 border-b bg-background">
         <div className="container flex justify-center">
           <Link to="/" className="text-2xl font-bold text-primary">
@@ -75,7 +69,6 @@ const SignUp = () => {
         </div>
       </header>
 
-      {/* Main Signup Content */}
       <div className="flex flex-1 items-center justify-center bg-gray-50 px-4">
         <Card className="w-full max-w-md">
           {!success && (

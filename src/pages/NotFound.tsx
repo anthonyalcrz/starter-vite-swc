@@ -21,19 +21,18 @@ export default function NotFound() {
         Back to Home
       </Link>
 
-      <style jsx>{`
-        .animate-bounce-slow {
-          animation: bounce 1.6s ease-in-out infinite;
-        }
-
+      <style>{`
         @keyframes bounce {
-          0%,
-          100% {
+          0%, 100% {
             transform: translateY(0);
           }
           50% {
             transform: translateY(-6px);
           }
+        }
+
+        .animate-bounce-slow {
+          animation: bounce 1.6s ease-in-out infinite;
         }
       `}</style>
     </div>

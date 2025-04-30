@@ -1,196 +1,101 @@
-import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createSupabaseClient } from "@/lib/createsupabaseclient";
-const supabase = createSupabaseClient();
-import NavBar from "../components/navbar";
-import { Button } from "../components/ui/button";
-import { ROUTES } from "../routes";
-import SignOutButton from "../components/auth/signoutbutton";
-import PasswordChangeForm from "../components/auth/passwordchangeform";
+import { useUserData } from "@/hooks/useUserData";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+
+const supabase = createSupabaseClient(true);
 
 export default function Settings() {
-  const navigate = useNavigate();
-
-  const [user, setUser] = useState(null);
-  const [saveStatus, setSaveStatus] = useState("idle");
-
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [payFrequency, setPayFrequency] = useState("Weekly");
-  const [weeklyBudget, setWeeklyBudget] = useState("");
+  const { user, profile } = useUserData();
+  const [fullName, setFullName] = useState("");
+  const [savingGoal, setSavingGoal] = useState<number | null>(null);
+  const [weeklyBudget, setWeeklyBudget] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchUserAndProfile = async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      setUser(userData.user);
-
-      if (userData.user) {
-        const { data: profile, error } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", userData.user.id)
-          .single();
-
-        if (error) {
-          console.error("Failed to fetch profile:", error.message);
-        } else if (profile) {
-          setName(profile.full_name || "");
-          setEmail(profile.email || "");
-          setPayFrequency(profile.pay_frequency || "Weekly");
-          setWeeklyBudget(profile.weekly_budget?.toString() || "");
-        }
-      }
-    };
-
-    fetchUserAndProfile();
-  }, []);
+    if (profile) {
+      setFullName(profile.full_name || "");
+      setSavingGoal(profile.savings_goal || null);
+      setWeeklyBudget(profile.weekly_budget || null);
+    }
+  }, [profile]);
 
   const handleSave = async () => {
-    if (!user) {
-      setSaveStatus("error");
-      return;
-    }
+    if (!user?.id) return;
+
+    setLoading(true);
 
     const { error } = await supabase
       .from("profiles")
       .update({
-        full_name: name,
-        email: email,
-        pay_frequency: payFrequency,
-        weekly_budget: Number(weeklyBudget),
+        full_name: fullName,
+        savings_goal: savingGoal,
+        weekly_budget: weeklyBudget,
       })
       .eq("id", user.id);
 
     if (error) {
-      console.error("Save failed:", error.message);
-      setSaveStatus("error");
+      console.error(error.message);
+      toast.error("Failed to save changes.");
     } else {
-      setSaveStatus("success");
+      toast.success("Settings updated!");
     }
 
-    setTimeout(() => setSaveStatus("idle"), 3000);
+    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <NavBar />
+    <div className="container py-10">
+      <h1 className="text-2xl font-bold mb-6">Settings</h1>
 
-      <main className="container mx-auto px-4 py-6 space-y-8">
-        {/* Back to Dashboard */}
+      <div className="grid gap-6 max-w-xl">
         <div>
-          <button
-            onClick={() => navigate(ROUTES.DASHBOARD)}
-            className="text-blue-600 flex items-center gap-2 mb-6 group"
-          >
-            <span className="text-xl transition-transform group-hover:-translate-x-1">
-              ←
-            </span>
-            <span className="transition-colors group-hover:underline">
-              Back to Dashboard
-            </span>
-          </button>
+          <label className="text-sm font-medium block mb-1">Full Name</label>
+          <Input
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
         </div>
 
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold dark:text-white">Settings</h1>
-          {/* Dark Mode - Disabled */}
-          <div className="flex items-center justify-between border p-3 px-4 rounded-md bg-muted w-fit">
-            <span className="text-sm font-medium">Dark Mode</span>
-            <span className="text-xs italic text-muted-foreground ml-3">
-              Coming soon
-            </span>
-          </div>
+        <div>
+          <label className="text-sm font-medium block mb-1">
+            Weekly Budget ($)
+          </label>
+          <Input
+            type="number"
+            value={weeklyBudget ?? ""}
+            onChange={(e) => setWeeklyBudget(Number(e.target.value))}
+          />
         </div>
 
-        {/* Save Changes Button - Moved up here */}
-        <div className="flex flex-col items-end space-y-2">
-          {saveStatus === "success" && (
-            <p className="text-green-600 text-sm">
-              Changes saved successfully!
-            </p>
-          )}
-          {saveStatus === "error" && (
-            <p className="text-red-600 text-sm">Failed to save changes.</p>
-          )}
-          <Button onClick={handleSave}>Save Changes</Button>
+        <div>
+          <label className="text-sm font-medium block mb-1">
+            Savings Goal ($)
+          </label>
+          <Input
+            type="number"
+            value={savingGoal ?? ""}
+            onChange={(e) => setSavingGoal(Number(e.target.value))}
+          />
         </div>
 
-        {/* Personal Info */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4 dark:text-white">
-            Personal Information
-          </h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Name
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md"
-              />
-            </div>
-          </div>
+        {/* 🌓 Dark Mode Placeholder */}
+        <div className="flex items-center justify-between border p-3 px-4 rounded-md bg-muted w-fit">
+          <span className="text-sm font-medium">Dark Mode</span>
+          <span className="text-xs italic text-muted-foreground ml-3">
+            Coming soon
+          </span>
         </div>
 
-        {/* Financial Info */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4 dark:text-white">
-            Financial Information
-          </h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Frequency of paycheck
-              </label>
-              <select
-                value={payFrequency}
-                onChange={(e) => setPayFrequency(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md"
-              >
-                <option>Weekly</option>
-                <option>Bi-weekly</option>
-                <option>Monthly</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Weekly budget amount
-              </label>
-              <input
-                type="number"
-                value={weeklyBudget}
-                onChange={(e) => setWeeklyBudget(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md"
-              />
-            </div>
-          </div>
+        <div className="pt-2">
+          <Button onClick={handleSave} disabled={loading}>
+            {loading ? "Saving..." : "Save Changes"}
+          </Button>
         </div>
-
-        {/* Security Section */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4 dark:text-white">
-            Security
-          </h2>
-          <PasswordChangeForm />
-          <div className="mt-6 flex justify-end">
-            <SignOutButton />
-          </div>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }

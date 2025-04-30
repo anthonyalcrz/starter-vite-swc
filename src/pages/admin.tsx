@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { createSupabaseClient } from "@/lib/createsupabaseclient";
-const supabase = createSupabaseClient();
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+
+const supabase = createSupabaseClient(true);
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -35,10 +36,7 @@ const AdminDashboard = () => {
   const unreadCount = messages.filter((m) => !m.read).length;
 
   const markMessageRead = async (id: number) => {
-    await supabase
-      .from("contact_messages")
-      .update({ read: true })
-      .eq("id", id);
+    await supabase.from("contact_messages").update({ read: true }).eq("id", id);
     fetchAll();
   };
 

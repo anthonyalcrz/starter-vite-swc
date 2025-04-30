@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { supabase } from "../../lib/supabaseclient";
+import { createSupabaseClient } from "@/lib/createsupabaseclient";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
+
+const supabase = createSupabaseClient(true);
 
 export default function PasswordChangeForm() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -27,7 +29,6 @@ export default function PasswordChangeForm() {
         return;
       }
 
-      // Step 1: Re-authenticate
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: userEmail,
         password: currentPassword,
@@ -40,7 +41,6 @@ export default function PasswordChangeForm() {
         return;
       }
 
-      // Step 2: Update Password
       const { error: updateError } = await supabase.auth.updateUser({
         password: newPassword,
       });
@@ -52,7 +52,6 @@ export default function PasswordChangeForm() {
         return;
       }
 
-      // Step 3: Send Email Notification
       await fetch("/functions/v1/send-password-change-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -61,8 +60,6 @@ export default function PasswordChangeForm() {
 
       setStatus("success");
       toast.success("Password updated successfully!");
-
-      // Reset fields
       setCurrentPassword("");
       setNewPassword("");
     } catch (err) {
@@ -72,7 +69,6 @@ export default function PasswordChangeForm() {
     }
   };
 
-  // Auto-scroll to the success message
   useEffect(() => {
     if (status === "success" && successRef.current) {
       successRef.current.scrollIntoView({
@@ -113,7 +109,6 @@ export default function PasswordChangeForm() {
         </div>
       </div>
 
-      {/* Success Banner */}
       {status === "success" && (
         <div
           ref={successRef}
