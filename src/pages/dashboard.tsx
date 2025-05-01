@@ -5,6 +5,7 @@ import MonthlyProgress from "@/components/dashboard/monthlyprogress";
 import RecurringExpenses from "@/components/dashboard/recurringexpenses";
 import SavingsStreak from "@/components/dashboard/savingsstreak";
 import { useRecurringExpenseContext } from "@/context/RecurringExpenseContext";
+import supabase from "@/lib/supabaseClient";
 
 const Dashboard = () => {
   const { user } = useUserData();
