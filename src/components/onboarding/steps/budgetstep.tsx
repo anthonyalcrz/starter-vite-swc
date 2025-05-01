@@ -1,4 +1,3 @@
-// ✅ Updated BudgetStep
 // src/components/onboarding/steps/budgetstep.tsx
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -29,7 +28,7 @@ interface BudgetStepProps {
   title: string;
   description: string;
   mascotMessage: string;
-  mascotEmotion?: string;
+  mascotEmotion?: "happy" | "excited" | "thinking" | "proud";
 }
 
 const BudgetStep: React.FC<BudgetStepProps> = ({

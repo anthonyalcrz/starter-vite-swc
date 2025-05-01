@@ -1,4 +1,3 @@
-// ✅ Updated SavingsStep
 // src/components/onboarding/steps/savingsstep.tsx
 import React from "react";
 import { motion } from "framer-motion";
@@ -20,7 +19,7 @@ interface SavingsStepProps {
   title: string;
   description: string;
   mascotMessage: string;
-  mascotEmotion?: string;
+  mascotEmotion?: "happy" | "excited" | "thinking" | "proud"; // ✅ fixed
 }
 
 const SavingsStep: React.FC<SavingsStepProps> = ({

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
-
 import supabase from "@/lib/supabaseClient";
 
 const AdminDashboard = () => {
@@ -20,7 +19,7 @@ const AdminDashboard = () => {
 
     const { data: usersData } = await supabase
       .from("profiles")
-      .select("id, full_name, email, role, onboarding_complete, created_at");
+      .select("id, first_name, last_name, email, role, onboarding_complete, created_at");
 
     const { data: messagesData } = await supabase
       .from("contact_messages")
@@ -63,11 +62,16 @@ const AdminDashboard = () => {
     fetchAll();
   };
 
+  const formatName = (user: any) => {
+    const first = user.first_name ?? "";
+    const last = user.last_name ?? "";
+    return `${first} ${last}`.trim() || "—";
+  };
+
   return (
     <div className="min-h-screen p-6 space-y-10">
       <h1 className="text-3xl font-bold mb-4">Admin Dashboard</h1>
 
-      {/* 🔔 Unread Contact Messages Alert */}
       {unreadCount > 0 && (
         <div className="bg-yellow-100 border border-yellow-300 p-4 rounded-md text-sm font-medium text-yellow-800">
           📬 You have {unreadCount} unread contact message
@@ -75,7 +79,6 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* 📥 CONTACT MESSAGES */}
       <section>
         <h2 className="text-xl font-semibold mt-8 mb-2">Feedback Inbox</h2>
         <div className="space-y-4">
@@ -106,7 +109,6 @@ const AdminDashboard = () => {
         </div>
       </section>
 
-      {/* 👥 USER LIST */}
       <section>
         <h2 className="text-xl font-semibold mt-12 mb-2">Live User List</h2>
         {loading ? (
@@ -127,7 +129,7 @@ const AdminDashboard = () => {
               <tbody>
                 {users.map((u) => (
                   <tr key={u.id} className="border-t hover:bg-accent/40">
-                    <td className="p-2">{u.full_name || "—"}</td>
+                    <td className="p-2">{formatName(u)}</td>
                     <td className="p-2">{u.email}</td>
                     <td className="p-2">{u.role}</td>
                     <td className="p-2">
@@ -162,7 +164,6 @@ const AdminDashboard = () => {
         )}
       </section>
 
-      {/* 🚩 FEATURE FLAGS */}
       <section>
         <h2 className="text-xl font-semibold mt-10 mb-2">Feature Flags</h2>
         {flagsLoading ? (
@@ -185,7 +186,6 @@ const AdminDashboard = () => {
         )}
       </section>
 
-      {/* 🧪 SIMULATION ACTIONS */}
       <section className="mt-12">
         <h2 className="text-xl font-semibold mb-2">Testing Actions</h2>
         <p className="text-muted-foreground text-sm">

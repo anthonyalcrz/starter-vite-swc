@@ -1,7 +1,7 @@
 // src/components/navbar.tsx
 import { Link, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { useUserData } from "../hooks/useUserData";
+import { useUserData } from "@/hooks/useUserData";
 import SignOutButton from "./auth/signoutbutton";
 
 export default function NavBar() {
@@ -21,11 +21,9 @@ export default function NavBar() {
   }
 
   const getInitials = () => {
-    if (!profile?.full_name) return "US";
-    const nameParts = profile.full_name.split(" ");
-    const firstInitial = nameParts[0]?.[0] || "";
-    const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1][0] : "";
-    return (firstInitial + lastInitial).toUpperCase();
+    const first = profile?.first_name?.[0] ?? "";
+    const last = profile?.last_name?.[0] ?? "";
+    return `${first}${last}`.toUpperCase() || "US";
   };
 
   return (

@@ -14,7 +14,7 @@ interface CompleteStepProps {
   title: string;
   description: string;
   mascotMessage: string;
-  mascotEmotion?: string;
+  mascotEmotion?: "happy" | "excited" | "thinking" | "proud"; // ✅ fixed type
 }
 
 const CompleteStep: React.FC<CompleteStepProps> = ({
