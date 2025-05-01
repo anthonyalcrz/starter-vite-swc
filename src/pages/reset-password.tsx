@@ -1,3 +1,4 @@
+// src/pages/reset-password.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createSupabaseClient } from "@/lib/createsupabaseclient";
@@ -34,9 +35,13 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background space-y-8">
+      <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white">
+        Grip Finances
+      </h1>
+
       <div className="max-w-md w-full space-y-6">
-        <h1 className="text-2xl font-bold text-center">Reset Your Password</h1>
+        <h2 className="text-xl font-bold text-center">Reset Your Password</h2>
 
         <form onSubmit={handleReset} className="space-y-4">
           <div>

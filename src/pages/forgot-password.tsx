@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
 
 const supabase = createSupabaseClient(true);
 
@@ -31,13 +30,10 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background space-y-6">
-      <Link
-        to="/"
-        className="text-xl font-bold text-gray-800 dark:text-white hover:underline"
-      >
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background space-y-8">
+      <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white">
         Grip Finances
-      </Link>
+      </h1>
 
       <div className="max-w-md w-full space-y-6 text-center">
         <img
@@ -46,7 +42,7 @@ export default function ForgotPassword() {
           className="w-24 h-24 mx-auto mb-2"
         />
 
-        <h1 className="text-2xl font-bold">Don't worry, we're here to help!</h1>
+        <h2 className="text-xl font-bold">Don't worry, we're here to help!</h2>
 
         {submitted ? (
           <p className="text-muted-foreground">

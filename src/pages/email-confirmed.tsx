@@ -32,13 +32,17 @@ export default function EmailConfirmed() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background space-y-8">
+      <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white">
+        Grip Finances
+      </h1>
+
       <div className="max-w-md w-full text-center space-y-6">
         <div className="text-6xl">✅</div>
 
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h2 className="text-xl font-bold text-gray-800">
           Your email has been confirmed!
-        </h1>
+        </h2>
 
         <p className="text-muted-foreground">
           {sessionValid

@@ -23,7 +23,6 @@ export default function SignIn() {
       setErrorMsg("Invalid email or password.");
     } else {
       const { data: { user } } = await supabase.auth.getUser();
-
       const { data: profile } = await supabase
         .from("profiles")
         .select("onboarding_complete")
@@ -39,18 +38,15 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 space-y-6">
-      <Link
-        to="/"
-        className="text-xl font-bold text-gray-800 dark:text-white hover:underline"
-      >
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background space-y-8">
+      <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white">
         Grip Finances
-      </Link>
+      </h1>
 
       <div className="max-w-md w-full space-y-6 bg-white dark:bg-gray-800 rounded-lg p-8 shadow">
-        <h1 className="text-2xl font-bold text-center">
+        <h2 className="text-xl font-semibold text-center">
           Sign In to Grip Finances
-        </h1>
+        </h2>
 
         <form onSubmit={handleSignIn} className="space-y-4">
           <div>
@@ -82,10 +78,7 @@ export default function SignIn() {
               />
               Remember me
             </label>
-            <Link
-              to="/forgot-password"
-              className="text-sm text-primary underline"
-            >
+            <Link to="/forgot-password" className="text-sm text-primary underline">
               Forgot Password?
             </Link>
           </div>
