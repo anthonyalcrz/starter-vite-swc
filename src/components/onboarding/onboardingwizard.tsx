@@ -1,15 +1,11 @@
 // src/components/onboarding/onboardingwizard.tsx
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import WelcomeStep from "./steps/welcomestep";
-import ProfileStep from "./steps/profilestep";
-import BudgetStep from "./steps/budgetstep";
-import SavingsStep from "./steps/savingsstep";
-import CompleteStep from "./steps/completestep";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { onboardingSteps } from "./onboardingsteps";
 import { createSupabaseClient } from "@/lib/createsupabaseclient";
+import OnboardingStep from "./onboardingstep";
 
 const supabase = createSupabaseClient(true);
 
@@ -120,24 +116,7 @@ const OnboardingWizard = () => {
   };
 
   const progressPercentage = (currentStep / (onboardingSteps.length - 1)) * 100;
-
-  const renderCurrentStep = () => {
-    const step = onboardingSteps[currentStep];
-    switch (step.type) {
-      case "welcome":
-        return <WelcomeStep onNext={handleNext} onSkip={() => {}} contentVariants={contentVariants} />;
-      case "profile":
-        return <ProfileStep data={formData} onDataChange={updateFormData} onNext={handleNext} onBack={handleBack} contentVariants={contentVariants} />;
-      case "budget":
-        return <BudgetStep data={formData} onDataChange={updateFormData} onNext={handleNext} onBack={handleBack} contentVariants={contentVariants} />;
-      case "savings":
-        return <SavingsStep data={formData} onDataChange={updateFormData} onNext={handleNext} onBack={handleBack} contentVariants={contentVariants} />;
-      case "complete":
-        return <CompleteStep onNext={() => navigate("/dashboard")} contentVariants={contentVariants} data={formData} />;
-      default:
-        return null;
-    }
-  };
+  const step = onboardingSteps[currentStep];
 
   if (isLoading) {
     return (
@@ -150,6 +129,7 @@ const OnboardingWizard = () => {
   return (
     <div className="bg-background w-full max-w-4xl mx-auto rounded-xl shadow-lg overflow-hidden">
       <div className="p-6 sm:p-8">
+        {/* Progress bar */}
         <div className="mb-8">
           <div className="relative h-2 bg-muted rounded-full overflow-hidden">
             <motion.div
@@ -166,6 +146,7 @@ const OnboardingWizard = () => {
           </div>
         </div>
 
+        {/* Step content */}
         <div className="min-h-[400px] relative">
           <AnimatePresence mode="wait">
             <motion.div
@@ -176,15 +157,27 @@ const OnboardingWizard = () => {
               variants={contentVariants}
               className="h-full"
             >
-              {renderCurrentStep()}
+              <OnboardingStep
+                step={step}
+                data={formData}
+                onDataChange={updateFormData}
+                onNext={handleNext}
+                onBack={handleBack}
+                onSkip={() => {}}
+              />
             </motion.div>
           </AnimatePresence>
         </div>
 
+        {/* Navigation */}
         {currentStep < onboardingSteps.length - 1 && (
           <div className="mt-8 flex justify-between">
-            {currentStep > 0 && <Button variant="outline" onClick={handleBack}>Back</Button>}
-            <Button onClick={handleNext}>{onboardingSteps[currentStep].buttonText}</Button>
+            {currentStep > 0 && (
+              <Button variant="outline" onClick={handleBack}>
+                Back
+              </Button>
+            )}
+            <Button onClick={handleNext}>{step.buttonText}</Button>
           </div>
         )}
       </div>

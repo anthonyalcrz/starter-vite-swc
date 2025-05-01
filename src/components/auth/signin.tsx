@@ -4,24 +4,41 @@ import { useNavigate, Link } from "react-router-dom";
 import { createSupabaseClient } from "@/lib/createsupabaseclient";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg("");
+    setLoading(true);
+
     const supabase = createSupabaseClient(rememberMe);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      console.error(error.message);
-      setErrorMsg("Invalid email or password.");
-    } else {
+      if (signInError) {
+        setErrorMsg("Invalid email or password.");
+        return;
+      }
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        setErrorMsg("Session could not be established. Please try again.");
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       const { data: profile } = await supabase
         .from("profiles")
@@ -30,6 +47,10 @@ export default function SignIn() {
         .single();
 
       navigate(profile?.onboarding_complete === false ? "/onboarding" : "/dashboard");
+    } catch (err: any) {
+      setErrorMsg(err.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,12 +81,25 @@ export default function SignIn() {
 
             <div>
               <label className="text-sm font-medium block mb-1">Password</label>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? (
+                    <EyeOffIcon className="w-5 h-5" />
+                  ) : (
+                    <EyeIcon className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <div className="flex items-center justify-between">
@@ -84,8 +118,8 @@ export default function SignIn() {
 
             {errorMsg && <p className="text-red-600 text-sm">{errorMsg}</p>}
 
-            <Button type="submit" className="w-full">
-              Sign In
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
 
