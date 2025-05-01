@@ -1,3 +1,4 @@
+// ✅ Updated CompleteStep
 // src/components/onboarding/steps/completestep.tsx
 import React, { useState } from "react";
 import { motion } from "framer-motion";
@@ -11,12 +12,20 @@ interface CompleteStepProps {
   onNext: () => void;
   contentVariants: any;
   data?: any;
+  title: string;
+  description: string;
+  mascotMessage: string;
+  mascotEmotion?: string;
 }
 
 const CompleteStep: React.FC<CompleteStepProps> = ({
   onNext,
   contentVariants,
   data,
+  title,
+  description,
+  mascotMessage,
+  mascotEmotion = "proud",
 }) => {
   const [loading, setLoading] = useState(false);
   const [showLoadingStep, setShowLoadingStep] = useState(false);
@@ -75,16 +84,18 @@ const CompleteStep: React.FC<CompleteStepProps> = ({
       <div className="mb-8">
         <SavvyMascot
           imageUrl="/savvy/savvy_excited2.png"
-          emotion="proud"
-          message="Woohoo! You're all set up and ready to go!"
+          emotion={mascotEmotion}
+          message={mascotMessage}
           size="large"
           animationType="bounce"
         />
       </div>
+
+      <h2 className="text-xl font-bold text-center mb-2">{title}</h2>
       <CardDescription className="text-lg mb-8 max-w-md mx-auto">
-        You've successfully set up your Grip Finance account. Your dashboard is
-        ready with your personalized budget and savings goal.
+        {description}
       </CardDescription>
+
       <Button
         onClick={handleComplete}
         className="w-full max-w-md"

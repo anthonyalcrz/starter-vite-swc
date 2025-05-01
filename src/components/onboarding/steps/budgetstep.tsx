@@ -1,3 +1,5 @@
+// ✅ Updated BudgetStep
+// src/components/onboarding/steps/budgetstep.tsx
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Label } from "@/components/ui/label";
@@ -11,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import SavvyMascot from "../savvymascot";
+import { CardDescription } from "@/components/ui/card";
 
 interface BudgetStepProps {
   data: {
@@ -23,15 +26,23 @@ interface BudgetStepProps {
   onNext: () => void;
   onBack: () => void;
   contentVariants: any;
+  title: string;
+  description: string;
+  mascotMessage: string;
+  mascotEmotion?: string;
 }
 
 const BudgetStep: React.FC<BudgetStepProps> = ({
   data,
   onDataChange,
   contentVariants,
+  title,
+  description,
+  mascotMessage,
+  mascotEmotion = "excited",
 }) => {
   const [localMonthlyIncome, setLocalMonthlyIncome] = useState<string>(
-    data.monthlyIncome?.toString() || "",
+    data.monthlyIncome?.toString() || ""
   );
 
   useEffect(() => {
@@ -45,7 +56,7 @@ const BudgetStep: React.FC<BudgetStepProps> = ({
   }, [data.monthlyIncome]);
 
   const handleMonthlyIncomeChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = e.target.value;
     setLocalMonthlyIncome(value);
@@ -69,15 +80,18 @@ const BudgetStep: React.FC<BudgetStepProps> = ({
       <div className="mb-6">
         <SavvyMascot
           imageUrl="/savvy/savvy_carrying_cointransp.png"
-          emotion="excited"
-          message="Setting a budget helps you stay on track with your spending!"
+          emotion={mascotEmotion}
+          message={mascotMessage}
           size="medium"
           animationType="pulse"
         />
       </div>
+      <h2 className="text-xl font-bold text-center mb-2">{title}</h2>
+      <CardDescription className="mb-8 text-center max-w-md">
+        {description}
+      </CardDescription>
 
       <div className="flex flex-col space-y-6 w-full max-w-md">
-        {/* Monthly Income Input */}
         <div className="space-y-2">
           <Label htmlFor="monthlyIncome">What's your monthly income?</Label>
           <div className="relative">
@@ -101,7 +115,6 @@ const BudgetStep: React.FC<BudgetStepProps> = ({
           )}
         </div>
 
-        {/* Pay Frequency */}
         <div className="space-y-2">
           <Label htmlFor="payFrequency">How often do you get paid?</Label>
           <Select
@@ -121,7 +134,6 @@ const BudgetStep: React.FC<BudgetStepProps> = ({
           </Select>
         </div>
 
-        {/* Weekly Budget Slider */}
         <div className="space-y-4">
           <Label>How much do you want to spend each week?</Label>
           <div className="flex items-center justify-between">

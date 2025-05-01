@@ -1,7 +1,10 @@
+// ✅ Updated SavingsStep
+// src/components/onboarding/steps/savingsstep.tsx
 import React from "react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CardDescription } from "@/components/ui/card";
 import SavvyMascot from "../savvymascot";
 
 interface SavingsStepProps {
@@ -14,12 +17,20 @@ interface SavingsStepProps {
   onNext: () => void;
   onBack: () => void;
   contentVariants: any;
+  title: string;
+  description: string;
+  mascotMessage: string;
+  mascotEmotion?: string;
 }
 
 const SavingsStep: React.FC<SavingsStepProps> = ({
   data,
   onDataChange,
   contentVariants,
+  title,
+  description,
+  mascotMessage,
+  mascotEmotion = "excited",
 }) => {
   const calculateMonthlySavings = () => {
     const amount = Number(data.goalAmount);
@@ -53,12 +64,16 @@ const SavingsStep: React.FC<SavingsStepProps> = ({
       <div className="mb-6">
         <SavvyMascot
           imageUrl="/savvy_landing_page/savvy-hero-04.png"
-          emotion="excited"
-          message="Let's set your first savings goal! What are you saving for?"
+          emotion={mascotEmotion}
+          message={mascotMessage}
           size="medium"
           animationType="bounce"
         />
       </div>
+      <h2 className="text-xl font-bold text-center mb-2">{title}</h2>
+      <CardDescription className="mb-8 text-center max-w-md">
+        {description}
+      </CardDescription>
 
       <div className="flex flex-col space-y-6 w-full max-w-md">
         <div className="space-y-2">
