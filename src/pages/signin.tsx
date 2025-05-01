@@ -20,7 +20,7 @@ export default function SignIn() {
     setErrorMsg("");
     setLoading(true);
 
-    const supabase = createSupabaseClient(rememberMe);
+    const supabase = createSupabaseClient(true);
 
     try {
       const { error: signInError } = await supabase.auth.signInWithPassword({
