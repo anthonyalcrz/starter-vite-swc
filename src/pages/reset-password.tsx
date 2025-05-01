@@ -35,38 +35,42 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background space-y-8">
-      <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white">
-        Grip Finances
-      </h1>
+    <div className="min-h-screen flex flex-col bg-background">
+      <header className="w-full p-4 border-b bg-background">
+        <div className="container flex justify-center">
+          <h1 className="text-2xl font-bold text-primary">Grip Finances</h1>
+        </div>
+      </header>
 
-      <div className="max-w-md w-full space-y-6">
-        <h2 className="text-xl font-bold text-center">Reset Your Password</h2>
+      <main className="flex flex-1 items-center justify-center px-4">
+        <div className="max-w-md w-full space-y-6">
+          <h2 className="text-xl font-bold text-center">Reset Your Password</h2>
 
-        <form onSubmit={handleReset} className="space-y-4">
-          <div>
-            <Label htmlFor="new-password">New Password</Label>
-            <Input
-              id="new-password"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-              placeholder="••••••••"
-            />
-          </div>
+          <form onSubmit={handleReset} className="space-y-4">
+            <div>
+              <Label htmlFor="new-password">New Password</Label>
+              <Input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+              />
+            </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Updating..." : "Reset Password"}
-          </Button>
-        </form>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Updating..." : "Reset Password"}
+            </Button>
+          </form>
 
-        {resetComplete && (
-          <p className="text-center text-muted-foreground text-sm mt-4">
-            Redirecting to sign in...
-          </p>
-        )}
-      </div>
+          {resetComplete && (
+            <p className="text-center text-muted-foreground text-sm mt-4">
+              Redirecting to sign in...
+            </p>
+          )}
+        </div>
+      </main>
     </div>
   );
 }

@@ -29,74 +29,74 @@ export default function SignIn() {
         .eq("id", user.id)
         .single();
 
-      if (profile?.onboarding_complete === false) {
-        navigate("/onboarding");
-      } else {
-        navigate("/dashboard");
-      }
+      navigate(profile?.onboarding_complete === false ? "/onboarding" : "/dashboard");
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background space-y-8">
-      <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white">
-        Grip Finances
-      </h1>
+    <div className="min-h-screen flex flex-col bg-background">
+      <header className="w-full p-4 border-b bg-background">
+        <div className="container flex justify-center">
+          <h1 className="text-2xl font-bold text-primary">Grip Finances</h1>
+        </div>
+      </header>
 
-      <div className="max-w-md w-full space-y-6 bg-white dark:bg-gray-800 rounded-lg p-8 shadow">
-        <h2 className="text-xl font-semibold text-center">
-          Sign In to Grip Finances
-        </h2>
+      <main className="flex flex-1 items-center justify-center px-4">
+        <div className="w-full max-w-md space-y-6 bg-white dark:bg-gray-800 rounded-lg p-8 shadow">
+          <h2 className="text-xl font-semibold text-center">
+            Sign In to Grip Finances
+          </h2>
 
-        <form onSubmit={handleSignIn} className="space-y-4">
-          <div>
-            <label className="text-sm font-medium block mb-1">Email</label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium block mb-1">Password</label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
+          <form onSubmit={handleSignIn} className="space-y-4">
+            <div>
+              <label className="text-sm font-medium block mb-1">Email</label>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
-              Remember me
-            </label>
-            <Link to="/forgot-password" className="text-sm text-primary underline">
-              Forgot Password?
+            </div>
+
+            <div>
+              <label className="text-sm font-medium block mb-1">Password</label>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                Remember me
+              </label>
+              <Link to="/forgot-password" className="text-sm text-primary underline">
+                Forgot Password?
+              </Link>
+            </div>
+
+            {errorMsg && <p className="text-red-600 text-sm">{errorMsg}</p>}
+
+            <Button type="submit" className="w-full">
+              Sign In
+            </Button>
+          </form>
+
+          <p className="text-sm text-center text-muted-foreground">
+            Don’t have an account?{" "}
+            <Link to="/signup" className="text-primary underline">
+              Sign up
             </Link>
-          </div>
-
-          {errorMsg && <p className="text-red-600 text-sm">{errorMsg}</p>}
-
-          <Button type="submit" className="w-full">
-            Sign In
-          </Button>
-        </form>
-
-        <p className="text-sm text-center text-muted-foreground">
-          Don't have an account?{" "}
-          <Link to="/signup" className="text-primary underline">
-            Sign up
-          </Link>
-        </p>
-      </div>
+          </p>
+        </div>
+      </main>
     </div>
   );
 }

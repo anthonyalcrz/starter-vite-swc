@@ -30,44 +30,48 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background space-y-8">
-      <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white">
-        Grip Finances
-      </h1>
+    <div className="min-h-screen flex flex-col bg-background">
+      <header className="w-full p-4 border-b bg-background">
+        <div className="container flex justify-center">
+          <h1 className="text-2xl font-bold text-primary">Grip Finances</h1>
+        </div>
+      </header>
 
-      <div className="max-w-md w-full space-y-6 text-center">
-        <img
-          src="/savvy/savvy_wearing_cape.png"
-          alt="Savvy to the rescue"
-          className="w-24 h-24 mx-auto mb-2"
-        />
+      <main className="flex flex-1 items-center justify-center px-4">
+        <div className="max-w-md w-full space-y-6 text-center">
+          <img
+            src="/savvy/savvy_wearing_cape.png"
+            alt="Savvy to the rescue"
+            className="w-24 h-24 mx-auto mb-2"
+          />
 
-        <h2 className="text-xl font-bold">Don't worry, we're here to help!</h2>
+          <h2 className="text-xl font-bold">Don't worry, we're here to help!</h2>
 
-        {submitted ? (
-          <p className="text-muted-foreground">
-            We've sent a reset link to <strong>{email}</strong>. Please check your inbox.
-          </p>
-        ) : (
-          <form onSubmit={handleReset} className="space-y-4 text-left">
-            <div>
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                required
-                placeholder="you@example.com"
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
+          {submitted ? (
+            <p className="text-muted-foreground">
+              We've sent a reset link to <strong>{email}</strong>.
+            </p>
+          ) : (
+            <form onSubmit={handleReset} className="space-y-4 text-left">
+              <div>
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  required
+                  placeholder="you@example.com"
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Sending..." : "Send Reset Link"}
-            </Button>
-          </form>
-        )}
-      </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Sending..." : "Send Reset Link"}
+              </Button>
+            </form>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
