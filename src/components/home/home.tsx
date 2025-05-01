@@ -1,17 +1,13 @@
+// src/pages/home.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { createClient } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
+import supabase from "@/lib/supabaseClient"; // ✅ Singleton import
 
 import HeroSection from "@/components/home/HeroSection";
 import FeatureHighlights from "@/components/home/FeatureHighlights";
 import TestimonialSection from "@/components/home/TestimonialSection";
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL as string,
-  import.meta.env.VITE_SUPABASE_ANON_KEY as string,
-);
 
 const Home = () => {
   const navigate = useNavigate();
@@ -79,19 +75,16 @@ const Home = () => {
       </header>
 
       <main className="flex flex-col items-center">
-        {/* Hero Section */}
         <HeroSection />
 
-        {/* Feature Highlights */}
         <div id="features">
           <FeatureHighlights />
         </div>
 
-        {/* Meet Savvy */}
         <section className="py-8 px-4 md:px-8 bg-white">
           <div className="container mx-auto flex justify-center">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center max-w-5xl">
-              <div className="flex flex-col items-center md:items-center justify-center relative">
+              <div className="flex flex-col items-center justify-center relative">
                 <motion.div
                   className="relative w-52 h-52"
                   animate={{ y: [0, -10, 0] }}
@@ -131,10 +124,8 @@ const Home = () => {
           </div>
         </section>
 
-        {/* Testimonials */}
         <TestimonialSection />
 
-        {/* Final CTA */}
         <section className="w-full py-20 bg-primary/5">
           <div className="container flex flex-col items-center text-center gap-8">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
@@ -151,7 +142,6 @@ const Home = () => {
         </section>
       </main>
 
-      {/* Footer */}
       <footer className="w-full border-t py-6 md:py-0">
         <div className="container flex flex-col md:flex-row md:h-24 items-center justify-between gap-4">
           <div className="flex items-center gap-2">
