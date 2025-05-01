@@ -1,3 +1,4 @@
+// src/pages/signin.tsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { createSupabaseClient } from "@/lib/createsupabaseclient";
@@ -15,18 +16,13 @@ export default function SignIn() {
     e.preventDefault();
     const supabase = createSupabaseClient(rememberMe);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       console.error(error.message);
       setErrorMsg("Invalid email or password.");
     } else {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
 
       const { data: profile } = await supabase
         .from("profiles")
@@ -43,7 +39,14 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 space-y-6">
+      <Link
+        to="/"
+        className="text-xl font-bold text-gray-800 dark:text-white hover:underline"
+      >
+        Grip Finances
+      </Link>
+
       <div className="max-w-md w-full space-y-6 bg-white dark:bg-gray-800 rounded-lg p-8 shadow">
         <h1 className="text-2xl font-bold text-center">
           Sign In to Grip Finances
