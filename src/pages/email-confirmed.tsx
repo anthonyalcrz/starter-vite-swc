@@ -58,7 +58,7 @@ export default function EmailConfirmed() {
           <img
             src="/savvy_landing_page/savvy-hero-02.png"
             alt="Savvy confirmed!"
-            className="w-40 h-40 mx-auto"
+            className="mx-auto max-w-xs"
           />
 
           <h2 className="text-xl font-bold text-gray-800">
