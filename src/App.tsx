@@ -14,7 +14,7 @@ import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/react";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
-import { createSupabaseClient } from "@/lib/createsupabaseclient";
+import supabase from "@/lib/supabaseClient"; // ✅ Singleton import
 
 const Home = lazy(() => import("@/components/home/home"));
 const SignIn = lazy(() => import("@/components/auth/signin"));
@@ -40,7 +40,6 @@ function App() {
   const [sessionChecked, setSessionChecked] = useState(false);
 
   useEffect(() => {
-    const supabase = createSupabaseClient(true);
     supabase.auth.getSession().then(() => setSessionChecked(true));
   }, []);
 
@@ -72,53 +71,16 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/email-confirmed" element={<EmailConfirmed />} />
-
-          <Route
-            path="/onboarding"
-            element={
-              <ProtectedRoute>
-                <OnboardingWizard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <Settings />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute role="admin">
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
           {flags.enable_savings_v2 && (
-            <Route
-              path="/savings"
-              element={
-                <ProtectedRoute>
-                  <SavingsBeta />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/savings" element={<ProtectedRoute><SavingsBeta /></ProtectedRoute>} />
           )}
           <Route path="*" element={<NotFound />} />
           {import.meta.env.VITE_TEMPO === "true" && <Route path="/tempobook/*" />}
         </Routes>
-
         {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
         <Analytics />
       </>

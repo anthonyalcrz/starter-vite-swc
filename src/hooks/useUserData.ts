@@ -1,6 +1,6 @@
 // src/hooks/useUserData.ts
 import { useEffect, useState } from "react";
-import { createSupabaseClient } from "@/lib/createsupabaseclient";
+import supabase from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
 import { Profile } from "@/types/supabase";
 
@@ -16,8 +16,6 @@ export function useUserData(): UseUserDataResult {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const supabase = createSupabaseClient(true);
-
     const fetchData = async () => {
       try {
         const { data: authData, error: authError } = await supabase.auth.getUser();
@@ -29,17 +27,20 @@ export function useUserData(): UseUserDataResult {
 
         setUser(authData.user);
 
-        const { data: profileData } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select("*")
           .eq("id", authData.user.id)
           .single();
 
-        setProfile(profileData || null); // allow onboarding to proceed if profile doesn't exist yet
+        if (profileError) {
+          console.warn("No profile found for user:", profileError.message);
+          setProfile(null);
+        } else {
+          setProfile(profileData);
+        }
       } catch (error) {
         console.error("Error fetching user/profile:", error);
-        setUser(null);
-        setProfile(null);
       } finally {
         setLoading(false);
       }
