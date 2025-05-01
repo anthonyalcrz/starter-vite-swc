@@ -1,10 +1,24 @@
-import { Link } from "react-router-dom";
+// src/components/navbar.tsx
+import { Link, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useUserData } from "../hooks/useUserData";
-import SignOutButton from "./auth/signoutbutton"; // ✅ Proper import
+import SignOutButton from "./auth/signoutbutton";
 
 export default function NavBar() {
   const { profile } = useUserData();
+  const location = useLocation();
+
+  const hideOnRoutes = [
+    "/signin",
+    "/signup",
+    "/onboarding",
+    "/forgot-password",
+    "/reset-password",
+  ];
+
+  if (hideOnRoutes.includes(location.pathname)) {
+    return null;
+  }
 
   const getInitials = () => {
     if (!profile?.full_name) return "US";
@@ -41,10 +55,6 @@ export default function NavBar() {
               <AvatarImage src={profile?.avatar_url || undefined} />
               <AvatarFallback>{getInitials()}</AvatarFallback>
             </Avatar>
-            <div
-              className="absolute top-0 left-0 right-0 bottom-0 bg-black opacity-0 hover:opacity-50 transition-opacity"
-              aria-label="Go to settings"
-            />
           </div>
         </Link>
         <SignOutButton className="text-sm text-gray-500 hover:text-red-600 transition-colors" />

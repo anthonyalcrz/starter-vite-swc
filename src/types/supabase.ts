@@ -1,37 +1,28 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json }
-  | Json[];
+// src/types/supabase.ts
 
-export interface Database {
-  public: {
-    Tables: {
-      profiles: {
-        Row: {
-          id: string;
-          email: string;
-          onboarding_complete: boolean;
-          weekly_budget: number | null; // ✅ Added for weekly_budget use
-        };
-        Insert: {
-          id: string;
-          email: string;
-          onboarding_complete?: boolean;
-          weekly_budget?: number | null;
-        };
-        Update: {
-          id?: string;
-          email?: string;
-          onboarding_complete?: boolean;
-          weekly_budget?: number | null;
-        };
-      };
-    };
-    Views: {};
-    Functions: {};
-    Enums: {};
-  };
+export interface Profile {
+  id: string;
+  email?: string;
+
+  // Basic user info
+  first_name?: string;
+  last_name?: string;
+  gender?: string;
+  birth_date?: string;
+  avatar_url?: string;
+
+  // Income & budgeting
+  monthly_income?: number;
+  calculated_weekly_income?: number;
+  weekly_budget?: number;
+  pay_frequency?: "weekly" | "biweekly" | "monthly";
+
+  // Goals
+  goal_name?: string;
+  goal_amount?: number;
+  goal_timeframe?: number;
+
+  // App state
+  onboarding_complete?: boolean;
+  role?: "user" | "admin"; // Can be expanded in future
 }

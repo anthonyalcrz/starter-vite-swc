@@ -1,50 +1,57 @@
+// src/hooks/useUserData.ts
 import { useEffect, useState } from "react";
 import { createSupabaseClient } from "@/lib/createsupabaseclient";
-import { useUser } from "@supabase/auth-helpers-react";
+import { User } from "@supabase/supabase-js";
+import { Profile } from "@/types/supabase";
 
-export interface UserProfile {
-  id: string;
-  email: string;
-  full_name?: string;
-  avatar_url?: string;
-  onboarding_complete?: boolean;
-  weekly_budget?: number;
-  role?: string;
-  created_at?: string;
+interface UseUserDataResult {
+  user: User | null;
+  profile: Profile | null;
+  loading: boolean;
 }
 
-export function useUserData() {
-  const supabase = createSupabaseClient(true);
-  const user = useUser();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+export function useUserData(): UseUserDataResult {
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user) {
+    const supabase = createSupabaseClient(true);
+
+    const fetchData = async () => {
+      try {
+        const { data: authData, error: authError } = await supabase.auth.getUser();
+        if (authError || !authData?.user) {
+          setUser(null);
+          setProfile(null);
+          return;
+        }
+
+        setUser(authData.user);
+
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", authData.user.id)
+          .single();
+
+        if (profileError && profileError.code !== "PGRST116") {
+          console.warn("Profile fetch error:", profileError.message);
+        }
+
+        // Still allow progression even if profile doesn't exist yet
+        setProfile(profileData || null);
+      } catch (error) {
+        console.error("Error fetching user/profile:", error);
+        setUser(null);
         setProfile(null);
+      } finally {
         setLoading(false);
-        return;
       }
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (error) {
-        console.error("Failed to load user profile:", error.message);
-        setProfile(null);
-      } else {
-        setProfile(data);
-      }
-
-      setLoading(false);
     };
 
-    fetchProfile();
-  }, [user, supabase]);
+    fetchData();
+  }, []);
 
   return { user, profile, loading };
 }

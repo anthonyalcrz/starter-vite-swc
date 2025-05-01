@@ -1,12 +1,11 @@
-// src/components/onboarding/CompleteStep.tsx
-
+// src/components/onboarding/steps/completestep.tsx
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { CardDescription } from "@/components/ui/card";
 import SavvyMascot from "../savvymascot";
-import LoadingStep from "../LoadingStep"; // ✅ import the new LoadingStep
-import { createClient } from "@supabase/supabase-js";
+import LoadingStep from "../LoadingStep";
+import { createSupabaseClient } from "@/lib/createsupabaseclient";
 
 interface CompleteStepProps {
   onNext: () => void;
@@ -14,18 +13,14 @@ interface CompleteStepProps {
   data?: any;
 }
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL as string,
-  import.meta.env.VITE_SUPABASE_ANON_KEY as string,
-);
-
 const CompleteStep: React.FC<CompleteStepProps> = ({
   onNext,
   contentVariants,
   data,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [showLoadingStep, setShowLoadingStep] = useState(false); // ✅ Track if should show LoadingStep
+  const [showLoadingStep, setShowLoadingStep] = useState(false);
+  const supabase = createSupabaseClient(true);
 
   const handleComplete = async () => {
     setLoading(true);
@@ -33,37 +28,32 @@ const CompleteStep: React.FC<CompleteStepProps> = ({
       const { data: userData } = await supabase.auth.getUser();
 
       if (userData?.user && data) {
-        const profileData: any = {
+        const profileData = {
           id: userData.user.id,
           onboarding_complete: true,
-          ...(data.firstName && { first_name: data.firstName }),
-          ...(data.lastName && { last_name: data.lastName }),
-          ...(data.gender && { gender: data.gender }),
-          ...(data.birthDate && {
-            birth_date: data.birthDate.toISOString().split("T")[0],
-          }),
-          ...(data.avatar && { avatar_url: data.avatar }),
-          ...(data.monthlyIncome && { monthly_income: data.monthlyIncome }),
-          ...(data.calculatedWeeklyIncome && {
-            calculated_weekly_income: data.calculatedWeeklyIncome,
-          }),
-          ...(data.weeklyBudget && { weekly_budget: data.weeklyBudget }),
-          ...(data.payFrequency && { pay_frequency: data.payFrequency }),
-          ...(data.goalName && { goal_name: data.goalName }),
-          ...(data.goalAmount && { goal_amount: data.goalAmount }),
-          ...(data.goalTimeframe && { goal_timeframe: data.goalTimeframe }),
+          first_name: data.firstName || "",
+          last_name: data.lastName || "",
+          gender: data.gender || "",
+          birth_date: data.birthDate || "",
+          avatar_url: data.avatar || "",
+          monthly_income: data.monthlyIncome || 0,
+          calculated_weekly_income: data.calculatedWeeklyIncome || 0,
+          weekly_budget: data.weeklyBudget || 200,
+          pay_frequency: data.payFrequency || "weekly",
+          goal_name: data.goalName || "",
+          goal_amount: data.goalAmount || 0,
+          goal_timeframe: data.goalTimeframe || 6,
         };
 
         const { error } = await supabase.from("profiles").upsert(profileData);
-
         if (error) {
           console.error("Error saving profile:", error.message);
           return;
         }
       }
 
-      onNext();
-      setShowLoadingStep(true); // ✅ Show the loading screen after saving
+      setShowLoadingStep(true);
+      setTimeout(() => onNext(), 500);
     } catch (error) {
       console.error("Error completing onboarding:", error);
     } finally {
@@ -72,7 +62,7 @@ const CompleteStep: React.FC<CompleteStepProps> = ({
   };
 
   if (showLoadingStep) {
-    return <LoadingStep />; // ✅ Show loading screen
+    return <LoadingStep />;
   }
 
   return (

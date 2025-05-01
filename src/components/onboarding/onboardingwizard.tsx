@@ -1,3 +1,4 @@
+// src/components/onboarding/onboardingwizard.tsx
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import WelcomeStep from "./steps/welcomestep";
@@ -6,23 +7,23 @@ import BudgetStep from "./steps/budgetstep";
 import SavingsStep from "./steps/savingsstep";
 import CompleteStep from "./steps/completestep";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
-import { createClient } from "@supabase/supabase-js";
 import { onboardingSteps } from "./onboardingsteps";
+import { createSupabaseClient } from "@/lib/createsupabaseclient";
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL as string,
-  import.meta.env.VITE_SUPABASE_ANON_KEY as string,
-);
+const supabase = createSupabaseClient(true);
 
 const OnboardingWizard = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
+    firstName: "",
+    lastName: "",
+    gender: "",
+    birthDate: "",
     avatar: "",
+    monthlyIncome: 0,
+    calculatedWeeklyIncome: 0,
     weeklyBudget: 200,
     payFrequency: "weekly",
     goalName: "",
@@ -34,24 +35,28 @@ const OnboardingWizard = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+        const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           const { data: profile } = await supabase
             .from("profiles")
             .select("*")
             .eq("id", user.id)
             .single();
+
           if (profile?.onboarding_complete) {
             navigate("/dashboard");
             return;
           }
+
           if (profile) {
             setFormData({
-              name: profile.name || "",
-              email: profile.email || "",
+              firstName: profile.first_name || "",
+              lastName: profile.last_name || "",
+              gender: profile.gender || "",
+              birthDate: profile.birth_date || "",
               avatar: profile.avatar_url || "",
+              monthlyIncome: profile.monthly_income || 0,
+              calculatedWeeklyIncome: profile.calculated_weekly_income || 0,
               weeklyBudget: profile.weekly_budget || 200,
               payFrequency: profile.pay_frequency || "weekly",
               goalName: profile.goal_name || "",
@@ -72,24 +77,15 @@ const OnboardingWizard = () => {
 
   const saveProfileProgress = async (data: typeof formData) => {
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         await supabase.from("profiles").upsert({
           id: user.id,
-          name: data.name,
-          email: data.email,
-          avatar_url: data.avatar,
-          weekly_budget: data.weeklyBudget,
-          pay_frequency: data.payFrequency,
-          goal_name: data.goalName,
-          goal_amount: data.goalAmount,
-          goal_timeframe: data.goalTimeframe,
+          ...data,
         });
       }
     } catch (error) {
-      console.error("Error saving profile progress:", error);
+      console.error("Error saving progress:", error);
     }
   };
 
@@ -126,55 +122,18 @@ const OnboardingWizard = () => {
   const progressPercentage = (currentStep / (onboardingSteps.length - 1)) * 100;
 
   const renderCurrentStep = () => {
-    const currentStepData = onboardingSteps[currentStep];
-
-    switch (currentStepData.type) {
+    const step = onboardingSteps[currentStep];
+    switch (step.type) {
       case "welcome":
-        return (
-          <WelcomeStep
-            onNext={handleNext}
-            onSkip={() => {}} // ✅ Added missing onSkip
-            contentVariants={contentVariants}
-          />
-        );
+        return <WelcomeStep onNext={handleNext} onSkip={() => {}} contentVariants={contentVariants} />;
       case "profile":
-        return (
-          <ProfileStep
-            data={formData}
-            onDataChange={updateFormData}
-            onNext={handleNext}
-            onBack={handleBack}
-            contentVariants={contentVariants}
-          />
-        );
+        return <ProfileStep data={formData} onDataChange={updateFormData} onNext={handleNext} onBack={handleBack} contentVariants={contentVariants} />;
       case "budget":
-        return (
-          <BudgetStep
-            data={formData}
-            onDataChange={updateFormData}
-            onNext={handleNext}
-            onBack={handleBack}
-            contentVariants={contentVariants}
-          />
-        );
+        return <BudgetStep data={formData} onDataChange={updateFormData} onNext={handleNext} onBack={handleBack} contentVariants={contentVariants} />;
       case "savings":
-        return (
-          <SavingsStep
-            data={formData}
-            onDataChange={updateFormData}
-            onNext={handleNext}
-            onBack={handleBack}
-            contentVariants={contentVariants}
-          />
-        );
+        return <SavingsStep data={formData} onDataChange={updateFormData} onNext={handleNext} onBack={handleBack} contentVariants={contentVariants} />;
       case "complete":
-        return (
-          <CompleteStep
-            onNext={() => navigate("/dashboard")}
-            contentVariants={contentVariants}
-            data={formData}
-          />
-        );
+        return <CompleteStep onNext={() => navigate("/dashboard")} contentVariants={contentVariants} data={formData} />;
       default:
         return null;
     }
@@ -191,7 +150,6 @@ const OnboardingWizard = () => {
   return (
     <div className="bg-background w-full max-w-4xl mx-auto rounded-xl shadow-lg overflow-hidden">
       <div className="p-6 sm:p-8">
-        {/* Animated Progress bar */}
         <div className="mb-8">
           <div className="relative h-2 bg-muted rounded-full overflow-hidden">
             <motion.div
@@ -208,7 +166,6 @@ const OnboardingWizard = () => {
           </div>
         </div>
 
-        {/* Content area */}
         <div className="min-h-[400px] relative">
           <AnimatePresence mode="wait">
             <motion.div
@@ -224,21 +181,10 @@ const OnboardingWizard = () => {
           </AnimatePresence>
         </div>
 
-        {/* Navigation buttons */}
         {currentStep < onboardingSteps.length - 1 && (
           <div className="mt-8 flex justify-between">
-            <div>
-              {currentStep > 0 && (
-                <Button variant="outline" onClick={handleBack}>
-                  Back
-                </Button>
-              )}
-            </div>
-            <div className="flex gap-4">
-              <Button onClick={handleNext}>
-                {onboardingSteps[currentStep].buttonText}
-              </Button>
-            </div>
+            {currentStep > 0 && <Button variant="outline" onClick={handleBack}>Back</Button>}
+            <Button onClick={handleNext}>{onboardingSteps[currentStep].buttonText}</Button>
           </div>
         )}
       </div>

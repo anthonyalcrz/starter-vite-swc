@@ -1,4 +1,5 @@
-import { Suspense, lazy, useEffect } from "react";
+// src/App.tsx
+import { Suspense, lazy, useEffect, useState } from "react";
 import {
   Routes,
   Route,
@@ -13,8 +14,8 @@ import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/react";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+import { createSupabaseClient } from "@/lib/createsupabaseclient";
 
-// ✅ Lazy load pages
 const Home = lazy(() => import("@/components/home/home"));
 const SignIn = lazy(() => import("@/components/auth/signin"));
 const SignUp = lazy(() => import("@/components/auth/signup"));
@@ -28,38 +29,39 @@ const Privacy = lazy(() => import("@/components/legal/privacy"));
 const Contact = lazy(() => import("@/components/legal/contact"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const AdminDashboard = lazy(() => import("@/pages/admin"));
-const SavingsBeta = lazy(() => import("@/pages/savings-beta")); // ✅ new route
+const SavingsBeta = lazy(() => import("@/pages/savings-beta"));
 
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const { flags, loading: flagsLoading } = useFeatureFlags();
+  const [sessionChecked, setSessionChecked] = useState(false);
 
   useEffect(() => {
-    if (window.location.hash && !location.search) {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const type = hashParams.get("type");
-      if (type === "signup" || type === "magiclink") {
-        navigate("/onboarding");
-      }
+    const supabase = createSupabaseClient(true);
+    supabase.auth.getSession().then(() => setSessionChecked(true));
+  }, []);
+
+  useEffect(() => {
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const type = hashParams.get("type");
+    if (type === "signup" || type === "magiclink") {
+      navigate("/onboarding");
     }
 
     const searchParams = new URLSearchParams(location.search);
-    const type = searchParams.get("type");
-    if (type === "signup" || type === "magiclink") {
+    if (searchParams.get("type") === "signup" || searchParams.get("type") === "magiclink") {
       navigate("/onboarding");
     }
   }, [location, navigate]);
 
-  if (flagsLoading) return <LoadingScreen />;
+  if (!sessionChecked || flagsLoading) return <LoadingScreen />;
 
   return (
     <Suspense fallback={<LoadingScreen />}>
       <>
         <Toaster position="top-center" richColors closeButton />
-
         <Routes>
-          {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
@@ -67,7 +69,6 @@ function App() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/contact" element={<Contact />} />
 
-          {/* Protected Routes */}
           <Route
             path="/onboarding"
             element={
@@ -100,8 +101,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          {/* 🚩 Conditionally expose BETA Savings route */}
           {flags.enable_savings_v2 && (
             <Route
               path="/savings"
@@ -112,18 +111,11 @@ function App() {
               }
             />
           )}
-
-          {/* Catch-all 404 route */}
           <Route path="*" element={<NotFound />} />
-
-          {/* Tempo-specific routing */}
-          {import.meta.env.VITE_TEMPO === "true" && (
-            <Route path="/tempobook/*" />
-          )}
+          {import.meta.env.VITE_TEMPO === "true" && <Route path="/tempobook/*" />}
         </Routes>
 
         {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
-
         <Analytics />
       </>
     </Suspense>
