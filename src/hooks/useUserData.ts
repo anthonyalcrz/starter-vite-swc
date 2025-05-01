@@ -13,36 +13,36 @@ interface UseUserDataResult {
   loading: boolean;
 }
 
-export function useUserData(): UseUserDataResult {
+export function useUserData(): UseUserDataResult & { refresh: () => Promise<void> } {
   const [user, setUser] = useState<UseUserDataResult["user"]>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+  const fetchUserData = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      setUser({ id: user.id, email: user.email ?? "" });
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single<Profile>();
-
-      setProfile(profile ?? null);
+    if (!user) {
       setLoading(false);
-    };
+      return;
+    }
 
-    fetchUser();
+    setUser({ id: user.id, email: user.email ?? "" });
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single<Profile>();
+
+    setProfile(profile ?? null);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchUserData();
   }, []);
 
-  return { user, profile, loading };
+  return { user, profile, loading, refresh: fetchUserData };
 }

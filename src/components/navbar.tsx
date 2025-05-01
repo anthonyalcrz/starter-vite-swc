@@ -1,8 +1,12 @@
-// src/components/navbar.tsx
 import { Link, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useUserData } from "@/hooks/useUserData";
 import SignOutButton from "./auth/signoutbutton";
+
+type ExtendedProfile = {
+  first_name?: string;
+  last_name?: string;
+};
 
 export default function NavBar() {
   const { profile } = useUserData();
@@ -21,14 +25,14 @@ export default function NavBar() {
   }
 
   const getInitials = () => {
-    const first = profile?.first_name?.[0] ?? "";
-    const last = profile?.last_name?.[0] ?? "";
+    const extended = profile as typeof profile & ExtendedProfile;
+    const first = extended?.first_name?.[0] ?? "";
+    const last = extended?.last_name?.[0] ?? "";
     return `${first}${last}`.toUpperCase() || "US";
   };
 
   return (
     <nav className="flex justify-between items-center py-4 px-6 bg-white dark:bg-gray-800 shadow-sm transition-colors">
-      {/* Logo section */}
       <div className="flex items-center space-x-2">
         <Link to="/">
           <img
@@ -45,7 +49,6 @@ export default function NavBar() {
         </Link>
       </div>
 
-      {/* User info and logout */}
       <div className="flex items-center space-x-4">
         <Link to="/settings">
           <div className="relative">

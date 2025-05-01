@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import supabase from "@/lib/supabaseClient";
-import { onboardingSteps, StepKey } from "./onboardingsteps";
+import { onboardingSteps } from "./onboardingsteps";
 import OnboardingStep from "./onboardingstep";
 import { useUserData } from "@/hooks/useUserData";
 
@@ -83,17 +83,12 @@ const OnboardingWizard: React.FC = () => {
       <div className="w-full max-w-2xl bg-white dark:bg-gray-900 p-6 md:p-8 rounded-lg shadow-lg">
         <OnboardingStep
           key={currentStep.type}
-          stepKey={currentStep.type as StepKey}
-          title={currentStep.title}
-          description={currentStep.description}
-          mascotMessage={currentStep.mascotMessage}
-          mascotEmotion={currentStep.mascotEmotion}
-          buttonText={currentStep.buttonText}
+          step={currentStep}
           data={formData}
           onDataChange={handleDataChange}
           onNext={handleNext}
           onBack={handleBack}
-          isLastStep={stepIndex === onboardingSteps.length - 1}
+          onSkip={() => null}
         />
       </div>
     </div>

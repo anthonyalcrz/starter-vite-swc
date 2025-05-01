@@ -8,9 +8,15 @@ interface ProtectedRouteProps {
   role?: string;
 }
 
+type ExtendedProfile = {
+  role?: string;
+};
+
 export default function ProtectedRoute({ children, role }: ProtectedRouteProps) {
   const { user, profile, loading } = useUserData();
   const location = useLocation();
+
+  const extendedProfile = profile as typeof profile & ExtendedProfile;
 
   if (loading) {
     return <div className="p-8 text-center">Loading user session...</div>;
@@ -24,7 +30,7 @@ export default function ProtectedRoute({ children, role }: ProtectedRouteProps) 
     return <Navigate to="/onboarding" replace />;
   }
 
-  if (role && profile?.role !== role) {
+  if (role && extendedProfile?.role !== role) {
     return <Navigate to="/dashboard" replace />;
   }
 

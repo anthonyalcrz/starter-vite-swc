@@ -101,14 +101,14 @@ export default function RecurringExpenses({
     if (error) {
       console.error("Error deleting recurring expense:", error.message);
     } else {
-      // Trigger parent to refetch (pass valid fallback)
+      // Trigger parent to refetch with a valid shape
       await onAddRecurring({
         id: "",
-        name: "",
+        name: "placeholder",
         amount: 0,
-        dueDate: "",
+        dueDate: "01",
         category_tag: "",
-      });
+      } as RecurringExpense);
     }
   };
 
@@ -214,7 +214,9 @@ export default function RecurringExpenses({
         }}
         onSave={handleSaveExpense}
         initialData={
-          editingIndex !== null ? recurringExpenses[editingIndex] : undefined
+          editingIndex !== null
+            ? (recurringExpenses[editingIndex] as RecurringExpense)
+            : undefined
         }
       />
     </div>

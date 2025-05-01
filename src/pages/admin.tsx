@@ -4,10 +4,6 @@ import { Switch } from "@/components/ui/switch";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import supabase from "@/lib/supabaseClient";
 
-type ExtendedProfile = {
-  role: string;
-};
-
 const AdminDashboard = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
@@ -53,7 +49,7 @@ const AdminDashboard = () => {
   const promoteToAdmin = async (userId: string) => {
     await supabase
       .from("profiles")
-      .update({ role: "admin" } as Partial<ExtendedProfile>)
+      .update({ role: "admin" } as any)
       .eq("id", userId);
     fetchAll();
   };

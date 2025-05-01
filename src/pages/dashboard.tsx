@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import { useUserData } from "@/hooks/useUserData";
-import supabase from "@/lib/supabaseClient";
 import WeeklySummary from "@/components/dashboard/weeklysummary";
 import MonthlyProgress from "@/components/dashboard/monthlyprogress";
 import RecurringExpenses from "@/components/dashboard/recurringexpenses";
 import SavingsStreak from "@/components/dashboard/savingsstreak";
+import { useRecurringExpenseContext } from "@/context/RecurringExpenseContext";
 
 const Dashboard = () => {
   const { user } = useUserData();
+  const {
+    expenses,
+    loading: expensesLoading,
+    addOrUpdate,
+  } = useRecurringExpenseContext();
 
   const [profileData, setProfileData] = useState<{
     id: string;
@@ -24,10 +29,10 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user?.id) return;
+    if (!user?.id) return;
 
-      const { data: profileData, error: profileError } = await supabase
+    const fetchProfile = async () => {
+      const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user.id)
@@ -43,11 +48,11 @@ const Dashboard = () => {
           onboarding_complete: boolean;
         }>();
 
-      if (profileError) {
-        console.error("Failed to fetch profile:", profileError.message);
+      if (error) {
+        console.error("Failed to fetch profile:", error.message);
       }
 
-      setProfileData(profileData ?? null);
+      setProfileData(data ?? null);
       setLoading(false);
     };
 
@@ -72,7 +77,9 @@ const Dashboard = () => {
 
   return (
     <div className="p-4 space-y-6">
-      <h1 className="text-2xl font-bold mb-2">Welcome back, {profileData.full_name}!</h1>
+      <h1 className="text-2xl font-bold mb-2">
+        Welcome back, {profileData.full_name}!
+      </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <WeeklySummary />
@@ -86,9 +93,9 @@ const Dashboard = () => {
       />
 
       <RecurringExpenses
-        recurringExpenses={[]} // You can replace with fetched data
-        onAddRecurring={async () => {}} // You can wire this in as needed
-        loading={false}
+        recurringExpenses={expenses}
+        onAddRecurring={addOrUpdate}
+        loading={expensesLoading}
       />
     </div>
   );

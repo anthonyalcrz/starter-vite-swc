@@ -1,4 +1,3 @@
-// src/App.tsx
 import { Suspense, lazy, useEffect, useState } from "react";
 import {
   Routes,
@@ -14,7 +13,8 @@ import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/react";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
-import supabase from "@/lib/supabaseClient"; // ✅ Singleton import
+import supabase from "@/lib/supabaseClient";
+import { RecurringExpenseProvider } from "@/context/RecurringExpenseContext"; // ✅
 
 const Home = lazy(() => import("@/components/home/home"));
 const SignIn = lazy(() => import("@/pages/signin"));
@@ -60,7 +60,7 @@ function App() {
 
   return (
     <Suspense fallback={<LoadingScreen />}>
-      <>
+      <RecurringExpenseProvider>
         <Toaster position="top-center" richColors closeButton />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -83,7 +83,7 @@ function App() {
         </Routes>
         {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
         <Analytics />
-      </>
+      </RecurringExpenseProvider>
     </Suspense>
   );
 }
