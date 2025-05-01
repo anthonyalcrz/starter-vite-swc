@@ -3,13 +3,12 @@
 export interface Profile {
   id: string;
   email?: string;
+  name?: string;
 
-  // Basic user info
-  first_name?: string;
-  last_name?: string;
-  gender?: string;
-  birth_date?: string;
+  // Identity & avatar
   avatar_url?: string;
+  birth_date?: string;
+  gender?: string;
 
   // Income & budgeting
   monthly_income?: number;
@@ -22,7 +21,11 @@ export interface Profile {
   goal_amount?: number;
   goal_timeframe?: number;
 
-  // App state
+  // App flags
   onboarding_complete?: boolean;
-  role?: "user" | "admin"; // Can be expanded in future
+  seen_tutorial?: boolean;
+  dashboard_tour_complete?: boolean;
+
+  // Optional admin
+  role?: "user" | "admin";
 }

@@ -29,18 +29,13 @@ export function useUserData(): UseUserDataResult {
 
         setUser(authData.user);
 
-        const { data: profileData, error: profileError } = await supabase
+        const { data: profileData } = await supabase
           .from("profiles")
           .select("*")
           .eq("id", authData.user.id)
           .single();
 
-        if (profileError && profileError.code !== "PGRST116") {
-          console.warn("Profile fetch error:", profileError.message);
-        }
-
-        // Still allow progression even if profile doesn't exist yet
-        setProfile(profileData || null);
+        setProfile(profileData || null); // allow onboarding to proceed if profile doesn't exist yet
       } catch (error) {
         console.error("Error fetching user/profile:", error);
         setUser(null);

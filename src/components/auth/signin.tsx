@@ -1,127 +1,85 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+// src/pages/signin.tsx
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { createSupabaseClient } from "@/lib/createsupabaseclient";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import NavBar from "@/components/navbar";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 export default function SignIn() {
+  const navigate = useNavigate();
+  const supabase = createSupabaseClient(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const supabase = createSupabaseClient(rememberMe);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-    const { error: loginError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (loginError) {
-      console.error("Login failed:", loginError.message);
-      toast.error("Invalid email or password");
-      setLoading(false);
-      return;
-    }
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user?.id) {
-      toast.error("Unable to retrieve user session.");
-      setLoading(false);
-      return;
-    }
-
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("onboarding_complete")
-      .eq("id", user.id)
-      .single();
-
-    if (profileError || !profile) {
-      toast.error("Error loading profile.");
-      console.error("Profile fetch failed:", profileError);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(false);
-    if (profile.onboarding_complete === false) {
-      navigate("/onboarding");
+    if (error) {
+      toast.error("Invalid credentials or account not confirmed.");
     } else {
       navigate("/dashboard");
     }
+
+    setLoading(false);
   };
 
   return (
-    <>
-      <NavBar />
-      <div className="min-h-screen flex items-center justify-center bg-background px-4">
-        <div className="max-w-md w-full space-y-6 bg-white dark:bg-gray-800 rounded-lg p-8 shadow">
-          <h1 className="text-2xl font-bold text-center">
-            Sign In to Grip Finances
-          </h1>
+    <main className="min-h-screen flex flex-col justify-center items-center px-4 bg-background">
+      <div className="text-2xl font-bold mb-6">Grip Finances</div>
 
-          <form onSubmit={handleSignIn} className="space-y-4">
-            <div>
-              <label className="text-sm font-medium block mb-1">Email</label>
-              <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
+      <form
+        onSubmit={handleLogin}
+        className="w-full max-w-md bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md space-y-6"
+      >
+        <h1 className="text-xl font-semibold text-center">Sign In to Grip Finances</h1>
 
-            <div>
-              <label className="text-sm font-medium block mb-1">Password</label>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-                Remember me
-              </label>
-              <Link
-                to="/forgot-password"
-                className="text-sm text-primary underline"
-              >
-                Forgot Password?
-              </Link>
-            </div>
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign In"}
-            </Button>
-          </form>
-
-          <p className="text-sm text-center text-muted-foreground">
-            Don’t have an account?{" "}
-            <Link to="/signup" className="text-primary underline">
-              Sign up
-            </Link>
-          </p>
+        <div>
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
-      </div>
-    </>
+
+        <div>
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="flex justify-between text-sm">
+          <label>
+            <input type="checkbox" className="mr-2" /> Remember me
+          </label>
+          <a href="/forgot-password" className="text-blue-600 hover:underline">
+            Forgot Password?
+          </a>
+        </div>
+
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? "Signing in..." : "Sign In"}
+        </Button>
+
+        <p className="text-center text-sm">
+          Don’t have an account?{" "}
+          <a href="/signup" className="text-blue-600 hover:underline">
+            Sign up
+          </a>
+        </p>
+      </form>
+    </main>
   );
 }

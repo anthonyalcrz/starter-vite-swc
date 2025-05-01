@@ -1,3 +1,4 @@
+// src/pages/email-confirmed.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createSupabaseClient } from "@/lib/createsupabaseclient";
@@ -41,8 +42,8 @@ export default function EmailConfirmed() {
 
         <p className="text-muted-foreground">
           {sessionValid
-            ? "You're all set. Click below to start onboarding."
-            : "Please sign in again to continue onboarding."}
+            ? "You're all set. Click below to begin onboarding."
+            : "Please sign in to continue."}
         </p>
 
         {sessionValid ? (

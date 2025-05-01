@@ -30,6 +30,8 @@ const Contact = lazy(() => import("@/components/legal/contact"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const AdminDashboard = lazy(() => import("@/pages/admin"));
 const SavingsBeta = lazy(() => import("@/pages/savings-beta"));
+const ForgotPassword = lazy(() => import("@/pages/forgot-password"));
+const EmailConfirmed = lazy(() => import("@/pages/email-confirmed"));
 
 function App() {
   const navigate = useNavigate();
@@ -46,12 +48,12 @@ function App() {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const type = hashParams.get("type");
     if (type === "signup" || type === "magiclink") {
-      navigate("/onboarding");
+      navigate("/email-confirmed");
     }
 
     const searchParams = new URLSearchParams(location.search);
     if (searchParams.get("type") === "signup" || searchParams.get("type") === "magiclink") {
-      navigate("/onboarding");
+      navigate("/email-confirmed");
     }
   }, [location, navigate]);
 
@@ -68,6 +70,8 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/email-confirmed" element={<EmailConfirmed />} />
 
           <Route
             path="/onboarding"
