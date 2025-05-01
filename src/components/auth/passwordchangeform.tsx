@@ -1,15 +1,13 @@
-import { useState, useRef, useEffect } from "react";
-import { createSupabaseClient } from "@/lib/createsupabaseclient";
-import { Button } from "../ui/button";
+// src/components/passwordchangeform.tsx
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-
-const supabase = createSupabaseClient(true);
+import supabase from "@/lib/supabaseClient";
 
 export default function PasswordChangeForm() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
-  const successRef = useRef<HTMLDivElement>(null);
 
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword) {
@@ -35,7 +33,6 @@ export default function PasswordChangeForm() {
       });
 
       if (signInError) {
-        console.error(signInError.message);
         toast.error("Current password is incorrect!");
         setStatus("idle");
         return;
@@ -46,41 +43,24 @@ export default function PasswordChangeForm() {
       });
 
       if (updateError) {
-        console.error(updateError.message);
-        toast.error("Failed to update password. Try again.");
+        toast.error("Failed to update password.");
         setStatus("idle");
         return;
       }
 
-      await fetch("/functions/v1/send-password-change-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: userEmail }),
-      });
-
-      setStatus("success");
       toast.success("Password updated successfully!");
+      setStatus("success");
       setCurrentPassword("");
       setNewPassword("");
     } catch (err) {
-      console.error("Unexpected error:", err);
       toast.error("Unexpected error occurred.");
       setStatus("idle");
     }
   };
 
-  useEffect(() => {
-    if (status === "success" && successRef.current) {
-      successRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }
-  }, [status]);
-
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold dark:text-white">Change Password</h3>
+      <h3 className="text-lg font-semibold">Change Password</h3>
 
       <div className="space-y-4">
         <input
@@ -88,17 +68,15 @@ export default function PasswordChangeForm() {
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
           placeholder="Current Password"
-          className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:text-white"
+          className="w-full px-3 py-2 border rounded-md"
         />
-
         <input
           type="password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           placeholder="New Password"
-          className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:text-white"
+          className="w-full px-3 py-2 border rounded-md"
         />
-
         <div className="flex justify-end">
           <Button
             onClick={handleChangePassword}
@@ -110,11 +88,8 @@ export default function PasswordChangeForm() {
       </div>
 
       {status === "success" && (
-        <div
-          ref={successRef}
-          className="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-md text-center animate-fadeIn"
-        >
-          🎉 Password changed successfully! You’ll get a confirmation email too.
+        <div className="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-md text-center">
+          ✅ Password changed successfully!
         </div>
       )}
     </div>

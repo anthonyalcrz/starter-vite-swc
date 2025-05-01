@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { createSupabaseClient } from "@/lib/createsupabaseclient";
-const supabase = createSupabaseClient(true); // or false if not persisting
+import supabase from "@/lib/supabaseClient"; // ✅ singleton client
 import { useUser } from "@supabase/auth-helpers-react";
 import NavBar from "../components/navbar";
 
@@ -49,7 +48,6 @@ export default function TransactionHistory() {
       exp.name.toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
-  // 📦 Export to CSV
   const exportToCSV = () => {
     if (filteredExpenses.length === 0) return;
 
@@ -81,9 +79,7 @@ export default function TransactionHistory() {
       <main className="container mx-auto px-4 py-6">
         <h1 className="text-2xl font-bold mb-6">Transaction History</h1>
 
-        {/* Filters + Export */}
         <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          {/* Month Filter */}
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
@@ -93,7 +89,6 @@ export default function TransactionHistory() {
             {generatePastMonthsOptions(13)}
           </select>
 
-          {/* Search Input */}
           <input
             type="text"
             value={searchQuery}
@@ -102,7 +97,6 @@ export default function TransactionHistory() {
             className="text-sm border-gray-300 rounded px-2 py-1 w-full md:w-64"
           />
 
-          {/* Export Button */}
           <button
             onClick={exportToCSV}
             className="px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-xs rounded transition-all"
@@ -163,7 +157,6 @@ export default function TransactionHistory() {
   );
 }
 
-// Helper to generate month options dropdown
 function generatePastMonthsOptions(pastMonths: number) {
   const today = new Date();
   const options = [];

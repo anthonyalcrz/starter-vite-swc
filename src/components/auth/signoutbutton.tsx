@@ -1,8 +1,8 @@
-import { useState } from "react";
+// src/components/auth/signoutbutton.tsx
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../ui/button";
-import { createSupabaseClient } from "@/lib/createsupabaseclient";
-const supabase = createSupabaseClient(true);
+import { Button } from "@/components/ui/button";
+import supabase from "@/lib/supabaseClient";
 
 interface SignOutButtonProps {
   className?: string;
@@ -16,9 +16,9 @@ export default function SignOutButton({ className }: SignOutButtonProps) {
     setLoading(true);
     try {
       await supabase.auth.signOut();
-      navigate("/login");
+      navigate("/signin");
     } catch (error) {
-      console.error("Error during sign out:", (error as Error).message);
+      console.error("Sign-out error:", error);
       setLoading(false);
     }
   };

@@ -17,7 +17,7 @@ import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import supabase from "@/lib/supabaseClient"; // ✅ Singleton import
 
 const Home = lazy(() => import("@/components/home/home"));
-const SignIn = lazy(() => import("@/components/auth/signin"));
+const SignIn = lazy(() => import("@/pages/signin"));
 const SignUp = lazy(() => import("@/components/auth/signup"));
 const Dashboard = lazy(() => import("@/pages/dashboard"));
 const Settings = lazy(() => import("@/pages/settings"));

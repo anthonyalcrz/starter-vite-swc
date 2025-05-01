@@ -1,26 +1,24 @@
 // src/pages/signin.tsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { createSupabaseClient } from "@/lib/createsupabaseclient";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import supabase from "@/lib/supabaseClient";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
     setLoading(true);
-
-    const supabase = createSupabaseClient(true);
 
     try {
       const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -35,7 +33,7 @@ export default function SignIn() {
 
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
-        setErrorMsg("Session could not be established. Please try again.");
+        setErrorMsg("Session could not be established.");
         return;
       }
 
@@ -70,9 +68,10 @@ export default function SignIn() {
 
           <form onSubmit={handleSignIn} className="space-y-4">
             <div>
-              <label className="text-sm font-medium block mb-1">Email</label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 type="email"
+                id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -80,9 +79,10 @@ export default function SignIn() {
             </div>
 
             <div>
-              <label className="text-sm font-medium block mb-1">Password</label>
+              <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Input
+                  id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -100,20 +100,6 @@ export default function SignIn() {
                   )}
                 </button>
               </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-                Remember me
-              </label>
-              <Link to="/forgot-password" className="text-sm text-primary underline">
-                Forgot Password?
-              </Link>
             </div>
 
             {errorMsg && <p className="text-red-600 text-sm">{errorMsg}</p>}

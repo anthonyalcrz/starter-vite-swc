@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import { createSupabaseClient } from "@/lib/createsupabaseclient";
-
-const supabase = createSupabaseClient(true);
+import supabase from "@/lib/supabaseClient";
 
 export function useFeatureFlags() {
   const [flags, setFlags] = useState<Record<string, boolean>>({});
@@ -9,19 +7,11 @@ export function useFeatureFlags() {
 
   useEffect(() => {
     const fetchFlags = async () => {
-      setLoading(true);
-
-      const { data, error } = await supabase
-        .from("feature_flags")
-        .select("flag_key, enabled");
-
+      const { data, error } = await supabase.from("feature_flags").select("*");
       if (!error && data) {
-        const mapped = Object.fromEntries(
-          data.map((f) => [f.flag_key, f.enabled])
-        );
+        const mapped = Object.fromEntries(data.map((f) => [f.flag_key, f.enabled]));
         setFlags(mapped);
       }
-
       setLoading(false);
     };
 

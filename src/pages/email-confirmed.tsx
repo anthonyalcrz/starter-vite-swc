@@ -1,11 +1,10 @@
 // src/pages/email-confirmed.tsx
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { createSupabaseClient } from "@/lib/createsupabaseclient";
 import { Button } from "@/components/ui/button";
 import confetti from "canvas-confetti";
 
-const supabase = createSupabaseClient(true);
+import supabase from "@/lib/supabaseClient";
 
 export default function EmailConfirmed() {
   const navigate = useNavigate();

@@ -1,4 +1,3 @@
-// ✅ Updated CompleteStep
 // src/components/onboarding/steps/completestep.tsx
 import React, { useState } from "react";
 import { motion } from "framer-motion";
@@ -6,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { CardDescription } from "@/components/ui/card";
 import SavvyMascot from "../savvymascot";
 import LoadingStep from "../LoadingStep";
-import { createSupabaseClient } from "@/lib/createsupabaseclient";
+import supabase from "@/lib/supabaseClient";
 
 interface CompleteStepProps {
   onNext: () => void;
@@ -29,7 +28,6 @@ const CompleteStep: React.FC<CompleteStepProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [showLoadingStep, setShowLoadingStep] = useState(false);
-  const supabase = createSupabaseClient(true);
 
   const handleComplete = async () => {
     setLoading(true);

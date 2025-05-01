@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { createSupabaseClient } from "@/lib/createsupabaseclient";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 
-const supabase = createSupabaseClient(true);
+import supabase from "@/lib/supabaseClient";
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState<any[]>([]);

@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { createSupabaseClient } from "@/lib/createsupabaseclient";
-const supabase = createSupabaseClient(true);
+import supabase from "@/lib/supabaseClient";
 import { useUser } from "@supabase/auth-helpers-react";
 
 export default function WeeklySummary() {
-  const user = useUser();
+  const user = useUserData();
   const [weeklySpend, setWeeklySpend] = useState<number>(0);
   const [weeklyBudget, setWeeklyBudget] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);

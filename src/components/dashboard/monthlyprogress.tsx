@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { createSupabaseClient } from "@/lib/createsupabaseclient";
-const supabase = createSupabaseClient(true);
+import supabase from "@/lib/supabaseClient";
 import { useUser } from "@supabase/auth-helpers-react";
 import { motion } from "framer-motion";
 

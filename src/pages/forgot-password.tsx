@@ -1,12 +1,11 @@
 // src/pages/forgot-password.tsx
 import { useState } from "react";
-import { createSupabaseClient } from "@/lib/createsupabaseclient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-const supabase = createSupabaseClient(true);
+import supabase from "@/lib/supabaseClient";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");

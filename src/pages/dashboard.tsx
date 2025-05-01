@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { createSupabaseClient } from "@/lib/createsupabaseclient";
 import NavBar from "@/components/navbar";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import TutorialModal from "@/components/dashboard/tutorialmodal";
 
-const supabase = createSupabaseClient(true);
+import supabase from "@/lib/supabaseClient";
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);

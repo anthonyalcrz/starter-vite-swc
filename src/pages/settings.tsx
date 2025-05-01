@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { createSupabaseClient } from "@/lib/createsupabaseclient";
 import { useUserData } from "@/hooks/useUserData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
-const supabase = createSupabaseClient(true);
+import supabase from "@/lib/supabaseClient";
 
 export default function Settings() {
   const { user, profile } = useUserData();
