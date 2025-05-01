@@ -1,23 +1,12 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import { tempo } from "tempo-devtools/dist/vite";
-import path from "path";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    tempo({
-      exclude: ["**/components/auth/passwordchangeform.tsx"],
-    }),
-  ],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+  plugins: [react()],
+  define: {
+    'process.env': {
+      NEXT_PUBLIC_SUPABASE_URL: JSON.stringify(process.env.NEXT_PUBLIC_SUPABASE_URL),
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: JSON.stringify(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
     },
-  },
-  server: {
-    // @ts-ignore
-    allowedHosts: process.env.TEMPO === "true" ? true : undefined,
   },
 });
