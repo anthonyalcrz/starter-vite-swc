@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { RecurringExpense } from "./recurringexpenses";
+import { useUserData } from "@/hooks/useUserData";
 
 interface ManageRecurringModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ const ManageRecurringModal: React.FC<ManageRecurringModalProps> = ({
   onSave,
   initialData,
 }) => {
+  const { user } = useUserData();
   const [name, setName] = useState("");
   const [amount, setAmount] = useState(0);
   const [dueDate, setDueDate] = useState("01");
@@ -23,7 +25,7 @@ const ManageRecurringModal: React.FC<ManageRecurringModalProps> = ({
     if (initialData) {
       setName(initialData.name);
       setAmount(initialData.amount);
-      setDueDate(initialData.dueDate);
+      setDueDate(initialData.due_date || "01");
       setCategory(initialData.category_tag ?? "");
     } else {
       setName("");
@@ -34,12 +36,16 @@ const ManageRecurringModal: React.FC<ManageRecurringModalProps> = ({
   }, [initialData, isOpen]);
 
   const handleSave = async () => {
+    if (!user) return;
+
     await onSave({
       id: initialData?.id || "",
+      user_id: user.id,
       name,
       amount,
-      dueDate,
+      due_date: dueDate,
       category_tag: category,
+      frequency: "monthly", // default or dynamic as needed
     });
   };
 

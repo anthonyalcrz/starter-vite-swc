@@ -7,8 +7,9 @@ export interface RecurringExpense {
   user_id: string;
   name: string;
   amount: number;
-  dueDate: string;
+  due_date: string;
   category_tag?: string;
+  frequency: string;
 }
 
 export function useRecurringExpenses() {
@@ -18,18 +19,21 @@ export function useRecurringExpenses() {
 
   const fetchExpenses = async () => {
     if (!user?.id) return;
+
     setLoading(true);
 
     const { data, error } = await supabase
-      .from("recurring_expenses")
+      .from("recurring_payments") // ✅ correct table
       .select("*")
       .eq("user_id", user.id);
 
     if (error) {
       console.error("Failed to fetch recurring expenses:", error.message);
+      setExpenses([]);
+    } else {
+      setExpenses(data as RecurringExpense[]);
     }
 
-    setExpenses(data ?? []);
     setLoading(false);
   };
 
@@ -38,16 +42,17 @@ export function useRecurringExpenses() {
 
     if (expense.id) {
       await supabase
-        .from("recurring_expenses")
+        .from("recurring_payments")
         .update({
           name: expense.name,
           amount: expense.amount,
-          dueDate: expense.dueDate,
+          due_date: expense.due_date,
           category_tag: expense.category_tag,
+          frequency: expense.frequency,
         })
         .eq("id", expense.id);
     } else {
-      await supabase.from("recurring_expenses").insert({
+      await supabase.from("recurring_payments").insert({
         ...expense,
         user_id: user.id,
       });
@@ -57,12 +62,14 @@ export function useRecurringExpenses() {
   };
 
   const deleteExpense = async (id: string) => {
-    await supabase.from("recurring_expenses").delete().eq("id", id);
+    await supabase.from("recurring_payments").delete().eq("id", id);
     await fetchExpenses();
   };
 
   useEffect(() => {
-    fetchExpenses();
+    if (user?.id) {
+      fetchExpenses();
+    }
   }, [user?.id]);
 
   return {
