@@ -4,6 +4,10 @@ import { Switch } from "@/components/ui/switch";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import supabase from "@/lib/supabaseClient";
 
+type ExtendedProfile = {
+  role: string;
+};
+
 const AdminDashboard = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
@@ -33,7 +37,7 @@ const AdminDashboard = () => {
 
   const unreadCount = messages.filter((m) => !m.read).length;
 
-  const markMessageRead = async (id: number) => {
+  const markMessageRead = async (id: string) => {
     await supabase.from("contact_messages").update({ read: true }).eq("id", id);
     fetchAll();
   };
@@ -49,7 +53,7 @@ const AdminDashboard = () => {
   const promoteToAdmin = async (userId: string) => {
     await supabase
       .from("profiles")
-      .update({ role: "admin" })
+      .update({ role: "admin" } as Partial<ExtendedProfile>)
       .eq("id", userId);
     fetchAll();
   };
@@ -100,7 +104,7 @@ const AdminDashboard = () => {
               </div>
               <p className="text-sm mb-3">{msg.message}</p>
               {!msg.read && (
-                <Button size="sm" onClick={() => markMessageRead(msg.id)}>
+                <Button size="sm" onClick={() => markMessageRead(String(msg.id))}>
                   Mark as Read
                 </Button>
               )}
@@ -184,14 +188,6 @@ const AdminDashboard = () => {
             ))}
           </div>
         )}
-      </section>
-
-      <section className="mt-12">
-        <h2 className="text-xl font-semibold mb-2">Testing Actions</h2>
-        <p className="text-muted-foreground text-sm">
-          Add future dev buttons here: e.g., simulate streaks, create test
-          budgets, or run onboarding reset flow.
-        </p>
       </section>
     </div>
   );

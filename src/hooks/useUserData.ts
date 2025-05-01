@@ -1,52 +1,47 @@
-// src/hooks/useUserData.ts
 import { useEffect, useState } from "react";
 import supabase from "@/lib/supabaseClient";
-import { User } from "@supabase/supabase-js";
-import { Profile } from "@/types/supabase";
+import type { Database } from "@/types/supabase";
+
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 interface UseUserDataResult {
-  user: User | null;
+  user: {
+    id: string;
+    email: string;
+  } | null;
   profile: Profile | null;
   loading: boolean;
 }
 
 export function useUserData(): UseUserDataResult {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UseUserDataResult["user"]>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { data: authData, error: authError } = await supabase.auth.getUser();
-        if (authError || !authData?.user) {
-          setUser(null);
-          setProfile(null);
-          return;
-        }
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-        setUser(authData.user);
-
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", authData.user.id)
-          .single();
-
-        if (profileError) {
-          console.warn("No profile found for user:", profileError.message);
-          setProfile(null);
-        } else {
-          setProfile(profileData);
-        }
-      } catch (error) {
-        console.error("Error fetching user/profile:", error);
-      } finally {
+      if (!user) {
         setLoading(false);
+        return;
       }
+
+      setUser({ id: user.id, email: user.email ?? "" });
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single<Profile>();
+
+      setProfile(profile ?? null);
+      setLoading(false);
     };
 
-    fetchData();
+    fetchUser();
   }, []);
 
   return { user, profile, loading };

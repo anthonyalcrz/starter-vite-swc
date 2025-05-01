@@ -1,133 +1,97 @@
-import React, { useEffect, useState } from "react";
-import NavBar from "@/components/navbar";
-import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import TutorialModal from "@/components/dashboard/tutorialmodal";
-
+import { useEffect, useState } from "react";
+import { useUserData } from "@/hooks/useUserData";
 import supabase from "@/lib/supabaseClient";
+import WeeklySummary from "@/components/dashboard/weeklysummary";
+import MonthlyProgress from "@/components/dashboard/monthlyprogress";
+import RecurringExpenses from "@/components/dashboard/recurringexpenses";
+import SavingsStreak from "@/components/dashboard/savingsstreak";
 
-export default function Dashboard() {
-  const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
+const Dashboard = () => {
+  const { user } = useUserData();
+
+  const [profileData, setProfileData] = useState<{
+    id: string;
+    email: string;
+    avatar_url: string;
+    full_name: string;
+    weekly_budget: number;
+    savings_goal: number;
+    savings_streak: number;
+    best_streak: number;
+    onboarding_complete: boolean;
+  } | null>(null);
+
   const [loading, setLoading] = useState(true);
-  const [budget, setBudget] = useState<number | null>(null);
-  const [goal, setGoal] = useState<number | null>(null);
-  const [streak, setStreak] = useState(0);
-  const [bestStreak, setBestStreak] = useState(0);
-
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
+    const fetchProfile = async () => {
+      if (!user?.id) return;
 
-      if (error) {
-        console.error("Failed to fetch user:", error.message);
-        return;
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single<{
+          id: string;
+          email: string;
+          avatar_url: string;
+          full_name: string;
+          weekly_budget: number;
+          savings_goal: number;
+          savings_streak: number;
+          best_streak: number;
+          onboarding_complete: boolean;
+        }>();
+
+      if (profileError) {
+        console.error("Failed to fetch profile:", profileError.message);
       }
 
-      if (user) {
-        setUser(user);
-
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-
-        if (profileError) {
-          console.error("Failed to fetch profile:", profileError.message);
-          return;
-        }
-
-        setProfile(profileData);
-        setBudget(profileData.weekly_budget ?? null);
-        setGoal(profileData.savings_goal ?? null);
-        setStreak(profileData.savings_streak ?? 0);
-        setBestStreak(profileData.best_streak ?? 0);
-      }
-
+      setProfileData(profileData ?? null);
       setLoading(false);
     };
 
-    fetchUserData();
-  }, []);
-
-  const handleStartOnboarding = () => {
-    navigate("/onboarding");
-  };
+    fetchProfile();
+  }, [user?.id]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Loading...</p>
+      <div className="flex justify-center items-center h-screen text-gray-600">
+        Loading your dashboard...
+      </div>
+    );
+  }
+
+  if (!profileData) {
+    return (
+      <div className="flex justify-center items-center h-screen text-red-600">
+        Error loading profile.
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <NavBar />
+    <div className="p-4 space-y-6">
+      <h1 className="text-2xl font-bold mb-2">Welcome back, {profileData.full_name}!</h1>
 
-      <main className="container mx-auto px-4 py-6 space-y-6">
-        <h1 className="text-2xl font-bold mb-4">
-          Welcome back, {profile?.full_name || "Friend"} 👋
-        </h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <WeeklySummary />
+        <MonthlyProgress />
+      </div>
 
-        <div className="grid md:grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="p-6">
-              <h2 className="text-sm font-medium text-muted-foreground mb-1">
-                Weekly Budget
-              </h2>
-              <p className="text-xl font-bold">${budget ?? 0}</p>
-            </CardContent>
-          </Card>
+      <SavingsStreak
+        currentStreak={profileData.savings_streak}
+        bestStreak={profileData.best_streak}
+        goalAmount={profileData.savings_goal}
+      />
 
-          <Card>
-            <CardContent className="p-6">
-              <h2 className="text-sm font-medium text-muted-foreground mb-1">
-                Savings Goal
-              </h2>
-              <p className="text-xl font-bold">${goal ?? 0}</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6 space-y-2">
-              <div>
-                <h2 className="text-sm font-medium text-muted-foreground mb-1">
-                  Your Savings Streak
-                </h2>
-                <p className="text-xl font-bold">
-                  {streak} week{streak === 1 ? "" : "s"}
-                </p>
-              </div>
-              <div>
-                <h2 className="text-sm font-medium text-muted-foreground mb-1">
-                  Best Streak
-                </h2>
-                <p className="text-xl font-bold">
-                  {bestStreak} week{bestStreak === 1 ? "" : "s"}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="mt-6">
-          <Button onClick={handleStartOnboarding} variant="outline">
-            Revisit Onboarding
-          </Button>
-        </div>
-      </main>
-
-      {/* ✅ Show tutorial modal if needed */}
-      <TutorialModal userId={user?.id || null} />
+      <RecurringExpenses
+        recurringExpenses={[]} // You can replace with fetched data
+        onAddRecurring={async () => {}} // You can wire this in as needed
+        loading={false}
+      />
     </div>
   );
-}
+};
+
+export default Dashboard;

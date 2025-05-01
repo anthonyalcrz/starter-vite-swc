@@ -1,180 +1,100 @@
-// src/components/onboarding/onboardingwizard.tsx
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { onboardingSteps } from "./onboardingsteps";
-import OnboardingStep from "./onboardingstep";
 import supabase from "@/lib/supabaseClient";
+import { onboardingSteps, StepKey } from "./onboardingsteps";
+import OnboardingStep from "./onboardingstep";
+import { useUserData } from "@/hooks/useUserData";
 
-const OnboardingWizard = () => {
+const OnboardingWizard: React.FC = () => {
+  const [stepIndex, setStepIndex] = useState(0);
+  const [formData, setFormData] = useState<any>({});
+  const { user } = useUserData();
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    gender: "",
-    birthDate: "",
-    avatar: "",
-    monthlyIncome: 0,
-    calculatedWeeklyIncome: 0,
-    weeklyBudget: 200,
-    payFrequency: "weekly",
-    goalName: "",
-    goalAmount: 0,
-    goalTimeframe: 6,
-  });
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", user.id)
-            .single();
+      if (!user?.id) return;
 
-          if (profile?.onboarding_complete) {
-            navigate("/dashboard");
-            return;
-          }
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single<{
+          id: string;
+          email: string;
+          avatar_url: string;
+          first_name: string;
+          last_name: string;
+          gender: string;
+          birth_date: string;
+          dashboard_tour_seen: boolean;
+          seen_tutorial: boolean;
+          goal_name: string;
+          goal_amount: number;
+          goal_timeframe: number;
+          onboarding_complete: boolean;
+          pay_frequency: string;
+          weekly_budget: number;
+          monthly_income: number;
+          calculated_weekly_income: number;
+        }>();
 
-          if (profile) {
-            setFormData({
-              firstName: profile.first_name || "",
-              lastName: profile.last_name || "",
-              gender: profile.gender || "",
-              birthDate: profile.birth_date || "",
-              avatar: profile.avatar_url || "",
-              monthlyIncome: profile.monthly_income || 0,
-              calculatedWeeklyIncome: profile.calculated_weekly_income || 0,
-              weeklyBudget: profile.weekly_budget || 200,
-              payFrequency: profile.pay_frequency || "weekly",
-              goalName: profile.goal_name || "",
-              goalAmount: profile.goal_amount || 0,
-              goalTimeframe: profile.goal_timeframe || 6,
-            });
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-      } finally {
-        setIsLoading(false);
+      if (profile) {
+        setFormData({
+          ...formData,
+          avatar: profile.avatar_url,
+          birthDate: profile.birth_date,
+          firstName: profile.first_name,
+          lastName: profile.last_name,
+          gender: profile.gender,
+          weeklyBudget: profile.weekly_budget,
+          payFrequency: profile.pay_frequency,
+          goalName: profile.goal_name,
+          goalAmount: profile.goal_amount,
+          goalTimeframe: profile.goal_timeframe,
+          monthlyIncome: profile.monthly_income,
+          calculatedWeeklyIncome: profile.calculated_weekly_income,
+        });
       }
     };
 
     fetchProfile();
-  }, [navigate]);
+  }, [user?.id]);
 
-  const saveProfileProgress = async (data: typeof formData) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from("profiles").upsert({
-          id: user.id,
-          ...data,
-        });
-      }
-    } catch (error) {
-      console.error("Error saving progress:", error);
-    }
+  const handleDataChange = (updated: any) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      ...updated,
+    }));
   };
 
-  const handleNext = async () => {
-    if (currentStep < onboardingSteps.length - 1) {
-      await saveProfileProgress(formData);
-      setCurrentStep(currentStep + 1);
-    }
+  const handleNext = () => {
+    setStepIndex((prev) => Math.min(prev + 1, onboardingSteps.length - 1));
   };
 
   const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
+    setStepIndex((prev) => Math.max(prev - 1, 0));
   };
 
-  const updateFormData = (data: Partial<typeof formData>) => {
-    setFormData((prev) => ({ ...prev, ...data }));
-  };
-
-  const contentVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-  };
-
-  const progressVariants = {
-    initial: { width: 0 },
-    animate: (progress: number) => ({
-      width: `${progress}%`,
-      transition: { duration: 0.5, ease: "easeInOut" },
-    }),
-  };
-
-  const progressPercentage = (currentStep / (onboardingSteps.length - 1)) * 100;
-  const step = onboardingSteps[currentStep];
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p>Loading your journey...</p>
-      </div>
-    );
-  }
+  const currentStep = onboardingSteps[stepIndex];
 
   return (
-    <div className="bg-background w-full max-w-4xl mx-auto rounded-xl shadow-lg overflow-hidden">
-      <div className="p-6 sm:p-8">
-        <div className="mb-8">
-          <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-primary rounded-full"
-              custom={progressPercentage}
-              initial="initial"
-              animate="animate"
-              variants={progressVariants}
-            />
-          </div>
-          <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-            <span>Start</span>
-            <span>Finish</span>
-          </div>
-        </div>
-
-        <div className="min-h-[400px] relative">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentStep}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              variants={contentVariants}
-              className="h-full"
-            >
-              <OnboardingStep
-                step={step}
-                data={formData}
-                onDataChange={updateFormData}
-                onNext={handleNext}
-                onBack={handleBack}
-                onSkip={() => {}}
-              />
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {currentStep < onboardingSteps.length - 1 && (
-          <div className="mt-8 flex justify-between">
-            {currentStep > 0 && (
-              <Button variant="outline" onClick={handleBack}>
-                Back
-              </Button>
-            )}
-            <Button onClick={handleNext}>{step.buttonText}</Button>
-          </div>
-        )}
+    <div className="min-h-screen bg-muted flex items-center justify-center p-6">
+      <div className="w-full max-w-2xl bg-white dark:bg-gray-900 p-6 md:p-8 rounded-lg shadow-lg">
+        <OnboardingStep
+          key={currentStep.type}
+          stepKey={currentStep.type as StepKey}
+          title={currentStep.title}
+          description={currentStep.description}
+          mascotMessage={currentStep.mascotMessage}
+          mascotEmotion={currentStep.mascotEmotion}
+          buttonText={currentStep.buttonText}
+          data={formData}
+          onDataChange={handleDataChange}
+          onNext={handleNext}
+          onBack={handleBack}
+          isLastStep={stepIndex === onboardingSteps.length - 1}
+        />
       </div>
     </div>
   );

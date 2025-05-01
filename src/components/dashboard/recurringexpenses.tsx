@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import supabase from "@/lib/supabaseClient";
-import { useUser } from "@supabase/auth-helpers-react";
+import { useUserData } from "@/hooks/useUserData";
 import ManageRecurringModal from "./managerecurringmodal";
 
 export interface RecurringExpense {
@@ -13,12 +13,7 @@ export interface RecurringExpense {
 
 export interface RecurringExpensesProps {
   recurringExpenses: RecurringExpense[];
-  onAddRecurring: (newRecurring: {
-    name: string;
-    amount: number;
-    dueDate: string;
-    category_tag?: string;
-  }) => Promise<void>;
+  onAddRecurring: (newRecurring: RecurringExpense) => Promise<void>;
   loading: boolean;
 }
 
@@ -30,13 +25,12 @@ export default function RecurringExpenses({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [animatedTotal, setAnimatedTotal] = useState(0);
-  const user = useUser();
+  const { user } = useUserData();
 
-  // Animate Total when recurringExpenses change
   useEffect(() => {
     const realTotal = recurringExpenses.reduce(
       (sum, exp) => sum + exp.amount,
-      0,
+      0
     );
 
     const duration = 400;
@@ -58,12 +52,7 @@ export default function RecurringExpenses({
     return () => clearInterval(interval);
   }, [recurringExpenses]);
 
-  const handleSaveExpense = async (expense: {
-    name: string;
-    amount: number;
-    dueDate: string;
-    category_tag: string;
-  }) => {
+  const handleSaveExpense = async (expense: RecurringExpense) => {
     if (!user) return;
 
     if (editingIndex !== null) {
@@ -81,13 +70,11 @@ export default function RecurringExpenses({
       if (error) {
         console.error("Error updating recurring expense:", error.message);
       } else {
-        // Let parent component handle the refresh
-        onAddRecurring(expense);
+        await onAddRecurring(expense);
         setEditingIndex(null);
       }
     } else {
-      // Let parent component handle the add
-      onAddRecurring(expense);
+      await onAddRecurring(expense);
     }
 
     setIsModalOpen(false);
@@ -101,7 +88,7 @@ export default function RecurringExpenses({
   const handleDeleteExpense = async (index: number) => {
     const toDelete = recurringExpenses[index];
     const confirmDelete = window.confirm(
-      `Are you sure you want to delete "${toDelete.name}"?`,
+      `Are you sure you want to delete "${toDelete.name}"?`
     );
 
     if (!confirmDelete) return;
@@ -114,8 +101,14 @@ export default function RecurringExpenses({
     if (error) {
       console.error("Error deleting recurring expense:", error.message);
     } else {
-      // Let parent component handle the refresh
-      onAddRecurring({ name: "", amount: 0, dueDate: "" });
+      // Trigger parent to refetch (pass valid fallback)
+      await onAddRecurring({
+        id: "",
+        name: "",
+        amount: 0,
+        dueDate: "",
+        category_tag: "",
+      });
     }
   };
 
@@ -152,8 +145,7 @@ export default function RecurringExpenses({
               const currentDay = today.getDate();
               const dueDay = parseInt(exp.dueDate.replace(/\D/g, "")) || 0;
               const daysUntilDue = dueDay - currentDay;
-
-              const highlightUpcoming = daysUntilDue >= 0 && daysUntilDue <= 7; // Due soon!
+              const highlightUpcoming = daysUntilDue >= 0 && daysUntilDue <= 7;
 
               return (
                 <li
@@ -196,7 +188,6 @@ export default function RecurringExpenses({
         </ul>
       )}
 
-      {/* Add New Recurring */}
       <div className="flex justify-end mt-6">
         <button
           onClick={() => {
@@ -209,14 +200,12 @@ export default function RecurringExpenses({
         </button>
       </div>
 
-      {/* Total Recurring Summary */}
       {recurringExpenses.length > 0 && (
         <div className="mt-6 text-right text-sm text-gray-600 dark:text-gray-300">
           Total This Month: ${animatedTotal.toFixed(2)}
         </div>
       )}
 
-      {/* Manage Recurring Modal */}
       <ManageRecurringModal
         isOpen={isModalOpen}
         onClose={() => {

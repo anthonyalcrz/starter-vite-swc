@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import supabase from "@/lib/supabaseClient";
-import { useUser } from "@supabase/auth-helpers-react";
+import { useUserData } from "@/hooks/useUserData";
 import { motion } from "framer-motion";
 
 export default function MonthlyProgress() {
@@ -9,7 +9,7 @@ export default function MonthlyProgress() {
   >([]);
   const [monthStartMessage, setMonthStartMessage] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
-  const user = useUser();
+  const { user } = useUserData();
 
   const dailyBudgetTarget = 50; // Example: $50/day
   const today = new Date();

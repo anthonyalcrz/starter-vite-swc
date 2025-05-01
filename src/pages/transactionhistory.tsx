@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import supabase from "@/lib/supabaseClient"; // ✅ singleton client
-import { useUser } from "@supabase/auth-helpers-react";
+import { useUserData } from "@/hooks/useUserData";
 import NavBar from "../components/navbar";
 
 export default function TransactionHistory() {
@@ -10,7 +10,7 @@ export default function TransactionHistory() {
   const [loading, setLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState(""); // Month Filter
   const [searchQuery, setSearchQuery] = useState(""); // Search Query
-  const user = useUser();
+  const { user } = useUserData();
 
   useEffect(() => {
     if (user) {
